@@ -1,0 +1,881 @@
+@import url('https://fonts.googleapis.com/css?family=Montserrat:400,600');
+@import url('https://fonts.googleapis.com/css?family=Average&subset=latin-ext');
+@import url('https://fonts.googleapis.com/css?family=Lato:400,700&subset=latin-ext');
+
+@import url('https://fonts.googleapis.com/css?family=Raleway:100,300,400,500,700,800');
+
+@charset "utf-8";
+/* CSS Document */
+body, html {
+	height: 100%
+}
+body {
+	background: #fff;
+	font-family: 'Lato', sans-serif;    /* font-family: 'Montserrat', sans-serif; */
+}
+h1, h2, h3, h4, h5, h6 {
+	 font-family: 'Average', serif;
+
+}
+p {
+	font-family: 'Average', serif;
+}
+h1, h2, h3, h4, h5, h6, p, a, ul, li {
+	-webkit-transition: all 0.3s ease-in-out;
+	-moz-transition: all 0.3s ease-in-out;
+	transition: all 0.3s ease-in-out;
+}
+@font-face {
+	font-family: WildYouth-Regular;
+	src: url('../fonts/WildYouth-Regular.otf');
+}
+a:hover {
+	text-decoration: none;
+}
+.employment_form h3{
+   font-family: 'Average', serif;
+   font-weight: bold;
+}
+.employment_form h4{
+   font-family: 'Average', serif;
+   font-weight: bold;
+}
+.allYourSec h1 {
+   font-family: 'Average', serif;
+    font-size: 39px;
+    color: #333333;
+    font-weight: bold;
+    margin: 30px 0 15px;
+    text-align: center;
+}
+.allYourSec p {
+  font-family: 'Average', serif;
+    font-size: 16px;
+    font-weight: normal;
+  }
+.reserve_form {
+	padding: 5% 0;
+}
+.reserve_form form {
+	background-color: #f4f1f1;
+	padding: 45px;
+	border-radius: 8px;
+}
+.form-group label {
+	font-size: 14px;
+    font-weight: 600;
+    font-family: 'Lato', sans-serif;
+    line-height: 1.8;
+}
+.checkbox label h2 {
+	color: #b72021;
+	font-size: 16px;
+	font-weight: 600;
+	display: inline-block;
+}
+.reserve_form .checkbox label {
+	padding-left: 0px;
+	font-weight: 600;
+}
+.reserve_form .checkbox input[type=checkbox], .checkbox-inline input[type=checkbox], .radio input[type=radio], .radio-inline input[type=radio] {
+	position: unset;
+	margin-left: 20px;
+}
+.reserve_form .checkbox h3 {
+	display: inline;
+	font-size: 15px;
+	padding-left: 10px;
+	font-family: 'Average', serif;
+}
+.reserve_form .checkbox, .radio {
+	position: relative;
+	display: block;
+	margin-bottom: 10px;
+	top: -14px;
+}
+.checkbox h2 {
+	display: inline;
+	color: #b72021;
+	font-size: 16px;
+	font-weight: 600;
+}
+.form-group input[type="courancy"] {
+	width: 10%;
+	display: table;
+}
+.form-group span {
+	position: relative;
+	left: 18px;
+	display: table;
+	top: -33px;
+	font-size: 21px;
+	color: #b72021;
+	border-right: 1px solid #ccc;
+	padding-right: 9px;
+}
+.form-group .btn-default {
+	color: #fff;
+	border-color: #ccc;
+	top: 29px;
+	position: relative;
+	padding: 9px 30px;
+	font-size: 13px;
+	font-weight: 500;
+	background-color: #b72021;
+	text-transform: uppercase;
+	border: none;
+}
+.reserve_column .col-md-10 {
+	margin: 0 auto;
+	display: table;
+	float: none;
+}
+.reserve_column {
+    background-image: url(../images/girl_bg.jpg);
+    width: 100%;
+    background-position: -37px 5px;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.reserve_column p {
+	font-size: 15px;
+}
+.employment_form .panel-default>.panel-heading+.panel-collapse>.panel-body {
+    /*    border-top-color: #ae0001;
+    background-color: #f4f1f1;*/
+        padding: 15px 25px;
+}
+.employment_form .panel-default>.panel-heading {
+    background-color: transparent;
+}
+.employment_form .panel-title {
+font-family: 'Lato', sans-serif;
+    font-size: 26px;
+    font-weight: bold;
+    text-align: center;
+}
+.employment_form .panel-title a {
+	display: block;
+	text-decoration: none;
+}
+.employment_form .panel-default {
+ /*   border-color: #ae0001;*/
+}
+.reserve_form ul {
+	padding-left: 15px;
+}
+.reserve_form ul li {
+    line-height: 24px;
+    font-family: 'Average', serif;
+}
+.radio_area {
+	margin-top: 15px;
+}
+.reserve_form .heading_form {
+    font-family: 'Lato', sans-serif;
+    font-size: 16px;
+    color: #b72021;
+    font-weight: 500;
+    margin: 0;
+}
+/*Radio Button CSS*/
+.form-group p {
+	display: inline-block;
+	margin-right:  20px;
+	margin-bottom: 0;
+}
+/*.form-group p [type="radio"]:checked,
+.form-group p [type="radio"]:not(:checked) {
+    position: absolute;
+    left: -9999px;
+}
+.form-group p [type="radio"]:checked + label,
+.form-group p [type="radio"]:not(:checked) + label
+{
+    position: relative;
+    padding-left: 28px;
+    cursor: pointer;
+    line-height: 20px;
+    display: inline-block;
+    color: #666;
+}
+.form-group p [type="radio"]:checked + label:before,
+.form-group p [type="radio"]:not(:checked) + label:before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 18px;
+    height: 18px;
+    border: 1px solid #ddd;
+    border-radius: 100%;
+    background: #fff;
+}
+.form-group p [type="radio"]:checked + label:after,
+.form-group p [type="radio"]:not(:checked) + label:after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    background: #9b262c;
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    border-radius: 100%;
+    -webkit-transition: all 0.2s ease;
+    transition: all 0.2s ease;
+}
+.form-group p [type="radio"]:not(:checked) + label:after {
+    opacity: 0;
+    -webkit-transform: scale(0);
+    transform: scale(0);
+}
+.form-group p [type="radio"]:checked + label:after {
+    opacity: 1;
+    -webkit-transform: scale(1);
+    transform: scale(1);
+}*/
+/*End of Radio Button CSS*/
+/*CheckBox Css*/
+.styled-checkbox {
+  position: absolute;
+  opacity: 0;
+}
+.styled-checkbox + label {
+  position: relative;
+  cursor: pointer;
+  padding: 0;
+}
+.styled-checkbox + label:before {
+  content: '';
+  margin-right: 10px;
+  display: inline-block;
+  vertical-align: text-top;
+  width: 20px;
+  height: 20px;
+  background: #00000069;;
+}
+.styled-checkbox:hover + label:before {
+  background: #000;
+}
+.styled-checkbox:focus + label:before {
+  box-shadow: none;
+}
+.styled-checkbox:checked + label:before {
+  background: #ae0001;
+}
+.styled-checkbox:disabled + label {
+  color: #b8b8b8;
+  cursor: auto;
+}
+.styled-checkbox:disabled + label:before {
+  box-shadow: none;
+  background: #ddd;
+}
+.styled-checkbox:checked + label:after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 13px;
+  background: white;
+  width: 2px;
+  height: 3px;
+  box-shadow: 2px 0 0 white, 4px 0 0 white, 4px -2px 0 white, 4px -4px 0 white, 4px -6px 0 white, 4px -8px 0 white;
+  -webkit-transform: rotate(45deg);
+          transform: rotate(45deg);
+}
+/*End of CheckBox CSS*/
+
+.btn_submit .btn-default {
+    color: #fff;
+    background-color: #a10001;
+    border-color: #a10001;
+    font-size: 16px;
+    padding: 6px 20px;
+    transition: all .3s ease-in-out;
+}
+.btn_submit .btn-default:hover {
+	background-color: #fff;
+	border-color: #a10001;
+	color: #a10001;
+}
+.employment_form .panel-default>.panel-heading {
+     border-color: transparent; 
+}
+
+
+
+/* form two styling */
+
+
+.para {
+  border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+  margin-bottom: 25px;
+  box-shadow: 0px 3px 9px -7px rgba(0, 0, 0, 0.4);
+}
+.para p {
+  margin: 0 0 10px;
+  color: #000;
+  font-size: 16px;
+  text-align: center;
+  line-height: 26px;
+  padding-bottom: 5px;
+}
+.head-work img {
+    width: 75%;
+    margin: 0 auto 40px;
+}
+.top_area .form-control.top_spa {
+    margin-top: 25px !important;
+}
+
+.top_area .form-control {
+    border: 0;
+    box-shadow: none;
+    border-bottom: 1px solid #000;
+    border-radius: 0;
+    margin-bottom: 20px !important;
+}
+.cake_order {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+/*Application Form CSS*/
+
+/*Demo Form CSS*/
+
+#membership-application .panel-theme {
+    border: 3px solid #c0c0c0;
+    background-color: #fff;
+}
+#membership-application .panel-theme .panel-heading {
+    border-bottom: 3px solid #c0c0c0 !important;
+    background: #fff !important;
+    color: #333;
+    position: relative;
+}
+#membership-application{margin: 50px 0 20px !important;}
+.form-head h2{color: #d71921;line-height: 40px;}
+#membership-application form .form-control {
+    margin: 0 0 15px 0;
+    height: 44px;
+    resize: none;
+    font-weight: 500;
+    box-shadow: none;
+    border-radius:  0;
+}
+.active-text{margin: 10px 0 0;}
+.active-text span{font-size: 18px; text-decoration: underline;}
+
+
+.footer-form{list-style: none;padding: 0;    margin: 15px 0 30px;}
+#membership-application .address {margin: 20px 0;}
+.footer-btn .btn-default{padding:12px 45px;font-size: 16px; text-transform: uppercase;background: #fff;color: #00a0d2;
+    border: 2px solid #00a0d2; transition: all .4s ease-in-out;}
+.footer-btn .btn-default:hover{background:#00a0d2; color: #fff;}
+
+/*Calendar Styling*/
+
+.ui-widget.ui-widget-content {border: 2px solid #b3344c !important;background: #fff !important;}
+#ui-datepicker-div .ui-widget-header {border: 0; background:none;}
+#ui-datepicker-div .ui-state-default, .ui-widget-content .ui-state-default{border: 1px solid rgba(204, 204, 204, 0.47); background: none;}
+.ui-widget {font-family: 'Montserrat' !important;}
+
+/*End of Demo Form CSS*/
+
+
+/*Bullets Styling CSS*/
+
+.radio_btn input[type="radio"] {
+    display:none;
+}
+.radio_btn input[type="radio"] + label {
+    color: $DarkBrown;
+    font-family:Arial, sans-serif;
+    font-size:14px;
+}
+.radio_btn input[type="radio"] + label span {
+    display:inline-block;
+    width:19px;
+    height:19px;
+    margin:-1px 4px 0 0;
+    vertical-align:middle;
+    cursor:pointer;
+    -moz-border-radius:  50%;
+    border-radius:  50%;
+}
+
+.radio_btn input[type="radio"] + label span {
+     background-color:#ccc;
+}
+
+.radio_btn input[type="radio"]:checked + label span{
+     background-color: #fff;
+    border: 5px solid #00a0d2;
+}
+
+.radio_btn input[type="radio"] + label span,
+.radio_btn input[type="radio"]:checked + label span {
+  -webkit-transition:background-color 0.4s linear;
+  -o-transition:background-color 0.4s linear;
+  -moz-transition:background-color 0.4s linear;
+  transition:background-color 0.4s linear;
+}
+
+/*End of Bullets Styling CSS*/
+
+
+
+/*Check Box CSS Styling*/
+
+.checkbox-primary input[type="checkbox"]:checked + label::before {
+  background-color: #fff;
+  border-color: #000;
+  }
+.checkbox-primary input[type="checkbox"]:checked + label::after {
+  color: #000;
+  }
+
+
+
+.checkbox {
+  padding-left: 20px;
+  margin-top:  20px;
+  text-align:  center;
+  }
+  .checkbox label {
+    display: inline-block;
+    position: relative;
+    padding-left: 5px;
+    font-weight: 500;
+    font-size:  16px;
+    }
+    .checkbox label::before {
+      /*content: "";
+      display: inline-block;
+      position: absolute;
+      width: 17px;
+      height: 17px;
+      left: 0;
+      margin-left: -20px;
+      border: 1px solid #000;
+      border-radius: 0;
+      background-color: #fff;
+      -webkit-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+      -o-transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
+      transition: border 0.15s ease-in-out, color 0.15s ease-in-out;*/
+      }
+    .checkbox label::after {
+      /*display: inline-block;
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      left: 0;
+      top: 0;
+      margin-left: -20px;
+      padding-left: 3px;
+      padding-top: 1px;
+      font-size: 11px;
+      color: #555555;*/
+    }
+  
+    /*.checkbox input[type="checkbox"]:checked + label::after {
+      font-family: 'FontAwesome';
+      content: "\f00c"; }
+    #logo_category-error:checked + label::after {
+      font-family: 'FontAwesome';
+      content: "\f00c"; }*/
+
+/*#logo_category-error, #icon_category-error, #font_style-error {*/
+.check_box .checkbox-primary label.error {
+    position: absolute;
+    top: -30px;
+    left: 0;
+}
+
+/* End of Check Box CSS Styling*/
+
+/*Bullets Styling CSS*/
+
+.radio_btn input[type="radio"] {
+    display:none;
+}
+.radio_btn input[type="radio"] + label {
+    color: $DarkBrown;
+    font-family:Arial, sans-serif;
+    font-size:14px;
+}
+.radio_btn input[type="radio"] + label span {
+    display:inline-block;
+    width:19px;
+    height:19px;
+    margin:-1px 4px 0 0;
+    vertical-align:middle;
+    cursor:pointer;
+    -moz-border-radius:  50%;
+    border-radius:  50%;
+}
+
+.radio_btn input[type="radio"] + label span {
+     background-color:#ccc;
+}
+
+.radio_btn input[type="radio"]:checked + label span{
+     background-color: #fff;
+     border: 5px solid #b3344c;
+}
+
+.radio_btn input[type="radio"] + label span,
+.radio_btn input[type="radio"]:checked + label span {
+  -webkit-transition:background-color 0.4s linear;
+  -o-transition:background-color 0.4s linear;
+  -moz-transition:background-color 0.4s linear;
+  transition:background-color 0.4s linear;
+}
+
+/*End of Bullets Styling CSS*/
+
+.no-padding{padding: 0;}
+.top p{text-align: right; font-size: 16px;}
+.panel-input input[type="text"]{width: 50%;}
+.app-form .main-H{font-size: 26px;
+    font-weight: 600;
+    color: #000;}
+.panel-heading p{font-size: 16px; font-weight: 600;}
+
+.months{list-style: none; padding: 0; margin: 15px 0;}
+.months li{display: inline;}
+.months li input[type=checkbox]{margin-left: 3px;}
+.months label{margin-left: 5px;}
+.footer{margin-top: 50px;}
+.footer .sign{border-top: 1px solid #000;}
+.footer .date{border-top: 1px solid #000; width: 80%;}
+
+
+.panel-heading .top-date{position: absolute;
+    width: 100%;
+    top: -3px;
+    bottom: 0px;}
+
+.instruction .instruc-list {padding-left: 15px;}
+.instruction .instruc-list li{line-height: 24px;font-size: 14px; color: #000; text-align: justify;}
+
+.instruction p{margin-top: 20px; font-size: 14px; color: #000;  text-align: justify;    line-height: 22px;}
+.download-btn p{font-size: 18px; transition: all .7s ease-in-out; font-weight: 600;}
+.download-btn p:hover{transform: scale(1.1);}
+.form-sheet .inquiries {
+    margin: 0px 0 40px;
+    font-size: 18px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+.detail_order h3 {
+    font-size: 18px;
+    font-weight: 600;
+}
+.dec_type h4 {
+    margin: 20px 0;
+    line-height: 26px;
+}
+.dec_type h3, .dec_color h3, .dec_cover h3 {
+    font-size: 18px;
+    font-weight: 600;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom:  15px;
+}
+.table_custom td:nth-child(1) {
+    font-weight: 500;
+    font-size: 16px;
+}
+.table_custom .last_tr td {
+    font-weight: 600;   
+}
+.term_con h4 {
+    font-weight: 600;
+    margin-top:  20px;
+    margin-bottom:  5px;
+}
+.term_con ol {
+    padding-left: 15px;
+}
+.term_con ol li {
+    font-weight: 500;
+    line-height:  24px;
+}
+.sign_below {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 500;
+    padding: 0 15px;
+    line-height: 28px;
+}
+.btm_ft {
+    text-align: center;
+    margin: 30px 0 0;
+    padding: 30px 0 0;
+}
+.btm_ft p {
+    font-size: 14px;
+    font-weight: 500;
+    color: #000;
+}
+.btm_ft a {
+    display: block;
+    margin: 10px 0;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: #000;
+}
+.footer .form-control {
+    margin: 0;
+    border: 0;
+    box-shadow: none;
+    border-bottom: 1px solid #000;
+    border-radius: 0;
+}
+
+.upload_img {
+    margin: 20px 0;
+}
+.upload_img .input-group .btn-default {
+  padding: 9px 12px;
+}
+
+.upload_img .btn-group>.btn.active, .upload_img .btn-group>.btn:active, .upload_img .btn-group>.btn:focus, .upload_img .btn-group>.btn:hover {
+    color: #fff;
+    background-color: #0f3f92;
+    border-color: #0f3f92;
+}
+.upload_img .btn-group.pull-right .btn {
+    padding: 8px 24px;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.upload_img label.btn {
+    padding: 8px 24px;
+    font-size: 16px;
+    font-weight: 500;
+}
+#membership-application form label {
+  margin-bottom: 5px;
+  display: block;
+  vertical-align:  middle;
+}
+#membership-application form label span {
+  font-weight: 400;
+}
+#membership-application form textarea.form-control {
+  height: 250px;
+}
+.para .note {
+  color: red;
+  font-weight: 600;
+}
+.check_box {
+    border: 1px solid #ddd;
+    margin-bottom: 25px;
+    margin-top: 10px;
+}
+.check_box .checkbox {
+  text-align: left;
+  margin: 0;
+  padding: 9px 33px 2px;
+  border-bottom: 1px solid #ddd;
+}
+.check_box p {
+  font-size: 14px;
+  color: #000;
+  margin:  0;
+  padding: 5px 15px;
+  border-bottom: 1px solid #ddd;
+}
+.check_box p span {
+  display: block;
+  font-weight: 600;
+}
+.check_box .checkbox input[type="checkbox"]{width: 18px;height: 16px;}
+.font_style.check_box .checkbox {
+    padding: 6px 33px 0px;
+    border-bottom: 0;
+}
+.submit_btn .btn-default {
+    color: #fff;
+    background-color: #333;
+    border-color: #ccc;
+    border: 0;
+    padding: 10px 30px;
+    border-radius: 0;
+    font-size: 14px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+/* Validation error */
+.panel-body .error{color: red;}
+.panel-body  input.error, .panel-body  textarea.error{border: 1px solid red;}
+
+input[type=radio]{width: 100%;height: 16px;}
+
+input[type=file] {
+    display: block;
+    border: 0;
+    padding-bottom: 20px;
+    margin-top: 19px;
+}
+
+/*End of Application Form CSS*/
+
+@media only screen and (min-width:1366px) and (max-width:1920px) {}
+@media only screen and (min-width:1200px) and (max-width:1365px) {}
+@media only screen and (min-width:992px) and (max-width:1199px) {}
+@media only screen and (min-width:768px) and (max-width:991px) {}
+@media only screen and (min-width:520px) and (max-width:767px) {}
+@media only screen and (min-width:300px) and (max-width:519px) {}
+
+/* Web form modification */
+.custom-error label.error {
+    position: absolute;
+    top: -26px;
+    left: 16px;
+}
+
+.custom-error-2 label.error {
+    position: absolute;
+    /* top: 7px; */
+    left: 16px;
+    top: 39px;
+}
+
+#collapse2 h4,#collapse3 h4,#collapse4 h4,#collapse5 h4 {
+    padding-bottom: 20px;
+}
+
+.prdctpadding {
+    padding: 0px 0 20px;
+}
+
+/* Animated Videos CSS */
+
+.anim-vid textarea.form-control {
+    height: auto;
+    resize: none;
+}
+
+
+.formz  .form-check-inline {
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    padding-left: 0;
+    margin-right: .75rem;
+    margin-top: 13px;
+}
+.formz  .form-check-label {
+    margin-bottom: 0;
+    cursor: pointer;
+}
+.formz  .form-check-inline .form-check-input {
+    position: static;
+    margin-top: 0;
+    margin-right: .3125rem;
+    margin-left: 0;
+}
+
+input[name="vid_voice"], input[name="brochure_name"]{width: auto}
+#vid_voice-error{position: absolute;top: 18px;}
+
+/* Animated Videos CSS  Ends */
+
+/* Brochure */
+#brochure_name-error {
+    position: absolute;
+    top: 18px;
+}
+
+/* content */
+.formz textarea {
+    box-sizing: border-box;
+    resize: none;
+    width: 100%;
+}
+
+.content-fom p span {
+    color: red;
+}
+
+/* Client. seo, email form css start */
+.main-content{
+    margin-bottom: 20px;
+    background-color: #fff;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    display: inline-block;
+    -webkit-box-shadow: 0 1px 1px rgba(0,0,0,.05);
+    box-shadow: 0 1px 1px rgba(0,0,0,.05);
+    width: 100%;
+    padding: 15px;
+}
+.main-content h2 {
+    font-family: 'Lato', sans-serif;
+    font-size: 26px;
+    font-weight: bold;
+    text-align: left;
+    margin-top: 0;
+    margin-bottom: 20px;
+    text-decoration: underline;
+}
+.main-content h4{
+    font-family: 'Average', serif;
+    font-weight: bold;
+}
+.text-area{
+    min-height: 120px;
+}
+/* Client. seo, email form css end */
+
+
+ .img_box img {
+    height: 299px;
+    object-fit: contain;
+    width: 100%;
+}
+#membership-application .panel-theme {
+    border: 3px solid #c0c0c0;
+    background-color: #fff;
+    padding-bottom: 20px;
+}
+ .logoimg img {
+    max-width: 120px !important;
+  
+    margin: 0 auto;
+    display: table;
+}
+.reserve_form {
+    padding: 0 0;
+}
+.allYourSec h1 {
+    color: #3e8fc9;
+    text-transform: capitalize;
+}
+.btn_submit .btn-default {
+    color: #fff;
+    background-color: #f69a16;
+    border-color: #f69a16;
+    font-size: 16px;
+    padding: 6px 20px;
+    transition: all .3s ease-in-out;
+    
+}
+
+
+.attachmenttext a {
+    margin: 0 10px;
+}

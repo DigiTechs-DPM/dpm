@@ -1,0 +1,200 @@
+@media (min-width: 1400px) {
+
+    .container,
+    .container-lg,
+    .container-md,
+    .container-sm,
+    .container-xl,
+    .container-xxl {
+        max-width: 1758px;
+        margin: auto;
+    }
+}
+
+
+@media (max-width: 1440px) {
+
+    .container,
+    .container-lg,
+    .container-md,
+    .container-sm,
+    .container-xl {
+        max-width: 1200px;
+    }
+
+    .upload-profile-pic {
+        width: 88%;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .doted-border::before {
+        right: 3px;
+    }
+
+    .dashboard-cards {
+        padding: 18px 18px;
+    }
+
+    .dashboard-cards .heading-2 {
+        font-size: 1.5rem;
+    }
+
+    .dashboard-cards .heading-2 span {
+        font-size: 18px;
+    }
+
+    .custom-chat-body {
+        width: 100%;
+    }
+
+    .chat-header {
+        width: 100%;
+    }
+
+    .messages {
+        padding: 0 12px;
+    }
+
+    .messages textarea {
+        font-size: 14px;
+        height: auto;
+    }
+
+    .chat-footer textarea {
+        width: 100%;
+    }
+
+    .chat-header {
+        padding: 0 1rem;
+    }
+
+    .parent-search-bar input {
+        width: 300px;
+    }
+
+    header {
+        height: 90px;
+    }
+
+    .container.bg-colored {
+        padding: 2rem;
+    }
+
+    .invoice-listing .table>:not(caption)>*>* {
+        font-size: 14px;
+    }
+
+    button.btn.pay-now {
+        font-size: 14px;
+        width: 90px;
+        padding: 4px 0;
+    }
+
+    .summary .heading-4:before {
+        width: 84%;
+        top: 9px;
+    }
+
+    .main-id-card .main-id-user p {
+        font-size: 14px;
+    }
+
+    .summary .heading-4 {
+        font-size: 1rem;
+    }
+
+    .paid-unpaid-drop-down select.form-select {
+        border-radius: 6px !important;
+    }
+
+    .sign-up-left {
+        width: 450px;
+    }
+    .Need-Help {
+        margin: 20px 0 0 0;
+    }
+    .log-in-content {
+        margin: 0;
+    }
+
+    .logo-container img {
+        filter: contrast(0.6);
+        height: auto;
+        margin: 0 0 20px 0;
+    }
+
+}
+
+@media (max-width: 1199px) {}
+
+@media (max-width: 991px) {}
+
+@media (max-width: 767px) {}
+@media (max-width: 576px){
+    .dashboard-cards{
+        max-width:290px;
+    }
+    header nav.navbar.navbar-expand-lg {
+        position: relative;
+        top: 0;
+    }
+
+    div#navbarSupportedContent {
+        position: absolute;
+        top: 80px;
+        background: white;
+        width: 100%;
+        border-radius: 10px;
+        padding: 15px;
+        z-index: 1;
+    }
+
+    form.d-flex {
+        justify-content: center;
+    }
+
+    .parent-search-bar {
+    }
+
+    .parent-search-bar input {
+        /* width: 197px; */
+    }
+
+    .bell-icon {
+        justify-content: center;
+        text-align: center;
+        margin: 0px auto;
+        display: flex;
+        margin-top: 10px;
+        align-items: center;
+    }
+
+    .bell-icon img {
+        width: 17px;
+        height: 20px;
+    }
+    .profile-drop-down {
+        margin-left: 0px;
+        margin-right: 0px;
+    }
+
+    section.invoice-listing input {
+        margin: 10px 0px;
+    }
+
+    section.invoice-listing select {
+        margin-bottom: 10px;
+    }
+    .paid {
+        margin-top: 11px;
+        width: auto;
+    }
+
+    section.invoice-listing.invoice th {
+    }
+
+    .invoice-listing .table>:not(caption)>*>* {
+        font-size: 12px;
+    }
+}
