@@ -68,6 +68,8 @@ class UpworkLinkGenerator
                 // dd($client);
 
                 // 2) Check for existing unpaid orders
+                $serviceName = $this->normalizeServiceName($serviceName);
+
                 $order = UpworkOrder::query()
                     ->where('client_id', $client->id)
                     ->where('brand_id', $brand->id)

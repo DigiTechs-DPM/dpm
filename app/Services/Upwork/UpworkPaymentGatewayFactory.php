@@ -69,16 +69,32 @@ class UpworkPaymentGatewayFactory
     protected function buildGateway(string $provider, AccountKey $keys): UpworkPaymentGateway
     {
         return match ($provider) {
-            'stripe' => new UpworkStripePayment($keys->stripe_secret_key),
+            'stripe' => app()->make(\App\Services\Upwork\UpworkStripePayment::class, [
+                'secret' => $keys->stripe_secret_key,
+            ]),
             'paypal' => new UpworkPayPalPayment([
                 'client_id'  => $keys->paypal_client_id ?? '',
                 'secret'     => $keys->paypal_secret ?? '',
                 'base'       => $keys->paypal_base_url ?? 'https://api.paypal.com',
                 'webhook_id' => $keys->paypal_webhook_id ?? null
             ]),
-            default  => throw new \Exception("Unsupported provider [$provider]"),
+            default => throw new \Exception("Unsupported provider [$provider]"),
         };
     }
+
+    // protected function buildGateway(string $provider, AccountKey $keys): UpworkPaymentGateway
+    // {
+    //     return match ($provider) {
+    //         'stripe' => new UpworkStripePayment($keys->stripe_secret_key),
+    //         'paypal' => new UpworkPayPalPayment([
+    //             'client_id'  => $keys->paypal_client_id ?? '',
+    //             'secret'     => $keys->paypal_secret ?? '',
+    //             'base'       => $keys->paypal_base_url ?? 'https://api.paypal.com',
+    //             'webhook_id' => $keys->paypal_webhook_id ?? null
+    //         ]),
+    //         default  => throw new \Exception("Unsupported provider [$provider]"),
+    //     };
+    // }
 
     /**
      * Check if the provider-specific keys exist in the provided account keys.
@@ -101,8 +117,12 @@ class UpworkPaymentGatewayFactory
         if (empty($secret)) {
             throw new \Exception("Stripe ENV secret is missing (services.stripe.secret).");
         }
-        return new UpworkStripePayment($secret);
+
+        return app()->make(\App\Services\Upwork\UpworkStripePayment::class, [
+            'secret' => $secret,
+        ]);
     }
+
 
     /**
      * Fallback method to get PayPal gateway using ENV variables.

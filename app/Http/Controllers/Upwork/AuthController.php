@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Upwork;
 
 use Carbon\Carbon;
 use App\Models\Admin;
-use App\Models\Seller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
@@ -34,10 +33,10 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
-        // if (!isWithinWorkingHours()) {
-        //     // return redirect()->route('upwork.login.get')->with('error', 'Login allowed only during working hours or from office.');
-        //     return view('errors.restricted');
-        // }
+        if (!isWithinWorkingHours()) {
+            // return redirect()->route('upwork.login.get')->with('error', 'Login allowed only during working hours or from office.');
+            return view('errors.restricted');
+        }
 
         // 🔹 Normal Admin Login
         if (Auth::guard('admin')->attempt($credentials)) {
@@ -57,9 +56,7 @@ class AuthController extends Controller
 
         // Check if email exists in admins or sellers
         $admin  = Admin::where('email', $request->email)->first();
-        $seller = Seller::where('email', $request->email)->first();
-
-        if (!$admin && !$seller) {
+        if (!$admin) {
             return back()->with('error', 'Email not found in our records.');
         }
 
@@ -84,10 +81,10 @@ class AuthController extends Controller
         ]);
 
         // Send email
-        // Mail::send('emails.upwork-password', ['token' => $token], function ($message) use ($request) {
-        //     $message->to($request->email);
-        //     $message->subject('Reset Your Password');
-        // });
+        Mail::send('emails.upwork-password', ['token' => $token], function ($message) use ($request) {
+            $message->to($request->email);
+            $message->subject('Reset Your Password');
+        });
 
         return back()->with('success', 'Password reset code sent! Please check your email.');
     }
@@ -115,10 +112,6 @@ class AuthController extends Controller
         // Update password in the right table
         if (Admin::where('email', $request->email)->exists()) {
             Admin::where('email', $request->email)->update([
-                'password' => Hash::make($request->password)
-            ]);
-        } elseif (Seller::where('email', $request->email)->exists()) {
-            Seller::where('email', $request->email)->update([
                 'password' => Hash::make($request->password)
             ]);
         } else {

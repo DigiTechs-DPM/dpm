@@ -142,8 +142,10 @@ class WebhookController extends Controller
         $gateway = $factory->forProviderWithBrand($link->provider, $brand, 'upwork');
         $gateway->handleCheckoutSuccess($link, $sessionId);
 
-        $link->refresh()->load('order');
-        return view('paid-success', ['link' => $link, 'order' => $link->order]);
+        // $link->refresh()->load('order');
+        $link->loadMissing('order.brand');
+        $brand = $link->order?->brand;
+        return view('paid-success', ['link' => $link, 'order' => $link->order, 'brand' => $brand]);
     }
 
     public function checkoutCancel(Request $request, string $token)
