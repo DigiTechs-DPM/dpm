@@ -250,7 +250,7 @@
     </style>
 </head>
 
-<body class="{{ session('theme', 'light') }}-theme">
+<body>
 
     <div class="floating-badge">
         Zaryth Alpharos

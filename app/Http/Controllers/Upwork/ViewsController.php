@@ -113,7 +113,20 @@ class ViewsController extends Controller
 
     public function generateInvoice(Request $request, ?UpworkOrder $order = null)
     {
-        // dd($order);
-        return view('upwork.pages.invoice', compact('order'));
+        $order?->loadMissing('brand');
+        $brand = $order?->brand;
+
+        $module = 'upwork';
+
+        $brandData = $brand
+            ? Brand::where('id', $brand->id)
+            ->where('module', $module)
+            ->where('status', 'Active')
+            ->first()
+            : null;
+
+        // dd($order, $brandData);
+
+        return view('upwork.pages.invoice', compact('order', 'brand', 'brandData', 'module'));
     }
 }

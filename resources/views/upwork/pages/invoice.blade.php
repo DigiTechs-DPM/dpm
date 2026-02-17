@@ -4,22 +4,41 @@
 
 @section('upwork-content')
 
+    @php
+        $brandUrl = trim((string) ($brandData->brand_url ?? ''));
+
+        $iconUrl = $brandUrl
+            ? (preg_match('/\.(jpg|jpeg|png|gif|svg)$/i', $brandUrl)
+                ? $brandUrl
+                : 'https://www.google.com/s2/favicons?sz=128&domain=' . parse_url($brandUrl, PHP_URL_HOST))
+            : asset('admin-assets/dpm-logos/4.png');
+    @endphp
+
     <style>
-        .invoice-section .card::before {
+        .invoiceCard {
+            position: relative;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        .invoiceCard::before {
             content: "";
             position: absolute;
             inset: 0;
-            background: url('{{ url('admin-assets/dpm-logos/dpm-fav.png') }}') center / 220px no-repeat;
-            opacity: 0.20;
-            z-index: 0;
-            background-position: center;
+            background-image: url("{!! $iconUrl !!}");
+            /* ✅ no &amp; */
             background-repeat: no-repeat;
-            background-size: contain;
+            background-position: center;
+            background-size: 350px;
+            opacity: .12;
+            z-index: 1;
+            pointer-events: none;
         }
 
-        .invoice-section>* {
+        .invoiceCard .card-body,
+        .invoiceCard .card-body * {
             position: relative;
-            z-index: 1;
+            z-index: 2;
         }
     </style>
 

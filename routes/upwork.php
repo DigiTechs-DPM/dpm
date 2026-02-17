@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Upwork\AuthController;
 use App\Http\Controllers\upwork\CrudController;
-use App\Http\Controllers\Upwork\DisputeController;
 use App\Http\Controllers\Upwork\ViewsController;
 use App\Http\Controllers\Upwork\OrdersController;
 use App\Http\Controllers\Upwork\WebhookController;
@@ -77,7 +76,3 @@ Route::prefix('pay')->group(function () {
     Route::get('/now/{token?}/error', [WebhookController::class, 'checkoutError'])
         ->name('upwork.paylinks.error');
 });
-
-
-// Route::get('/pay/paypal/{token?}/return', [PayPalPaymentController::class, 'paypalReturn'])->name('paypal.return');
-// Route::get('/payments/{token?}/success', [PayPalPaymentController::class, 'successPaid'])->name('payments.thanks');
