@@ -135,17 +135,11 @@
                                     $currency = $order->currency ?? 'USD';
                                 @endphp
                                 @if ($due > 0)
-                                    @if (!empty($latestActiveLink))
-                                        <small class="text-muted d-block mt-1">
-                                            Outstanding balance: {{ number_format($due / 100, 2) }} {{ $currency }}
-                                        </small>
-                                    @else
-                                        <div class="alert alert-warning mt-3 mb-0">
-                                            An installment is due ({{ number_format($due / 100, 2) }}
-                                            {{ $currency }}),
-                                            but no active payment link is available yet.
-                                        </div>
-                                    @endif
+                                    <div class="alert alert-warning mt-3 mb-0">
+                                        An installment is due ({{ number_format($due / 100, 2) }}
+                                        {{ $currency }}),
+                                        but no active payment link is available yet.
+                                    </div>
                                 @else
                                     <div class="alert alert-success mt-3 mb-0">
                                         This invoice is fully paid. Thank you!

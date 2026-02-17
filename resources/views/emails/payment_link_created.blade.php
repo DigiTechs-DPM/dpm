@@ -62,12 +62,12 @@
 
                     <!-- Main Container -->
                     <table class="templateContainer" width="100%" border="0" cellpadding="0" cellspacing="0"
-                        style="max-width:600px; background-color:#f7f7ff;">
+                        style="max-width:600px; background-color:#f7f7ff; table-layout:fixed; width:100%;">
 
                         <!-- Header -->
                         <tr>
                             <td align="center" style="padding: 16px 0; border-bottom: 1px solid red;">
-<img src="{{ asset('admin-assets/dpm-logos/4.png') }}" width="200" alt="DPM Logo"
+                                <img src="{{ url('admin-assets/dpm-logos/4.png') }}" width="200" alt="DPM Logo"
                                     style="display:block; margin:0 auto; border:0; outline:none;">
                             </td>
                         </tr>
@@ -121,9 +121,21 @@
                                     Pay Now
                                 </a>
 
-                                <p style="margin-top:15px; font-size:14px; color:#2a2a2a; width: 300px;">
-                                    If the button doesn’t work, copy and paste this link into your browser:<br>
-                                    <a href="{{ $url }}" style="color:#673187; width: 300px;">{{ $url }}</a>
+                                <p style="margin-top:15px; font-size:14px; color:#2a2a2a; max-width:560px;">
+                                    If the button doesn’t work, copy and paste this link into your browser:
+                                    <br>
+
+                                    <a href="{{ $url }}"
+                                        style="
+            color:#673187;
+            display:block;
+            max-width:100%;
+            word-break:break-all;
+            overflow-wrap:anywhere;
+            line-height:1.4;
+       ">
+                                        {{ $url }}
+                                    </a>
                                 </p>
 
                                 <br>

@@ -46,7 +46,6 @@
                                 <th>Due Amount</th>
                                 <th>Status</th>
                                 <th>Paid at</th>
-                                <th class="text-end">Action</th>
                                 <th class="text-end">Payment Link</th>
                             </tr>
                         </thead>
@@ -119,32 +118,18 @@
 
                                     <td>{{ optional($order->paid_at)->toDayDateTimeString() ?? '—' }}</td>
 
-                                    {{-- Actions --}}
-                                    <td class="text-end">
-                                        <a href="#">
-                                            <button type="button" class="badge btn-sm btn-outline-danger">Invoice</button>
-                                        </a>
-                                    </td>
-
                                     {{-- Payment Link Status (keep this) --}}
                                     <td>
                                         @if ($latestLink)
                                             @if ($latestLink->is_active_link)
                                                 <a href="javascript:void(0);"
-                                                    class="badge badge-success btn-sm togglePaylink"
+                                                    class="badge badge-success btn-sm"
                                                     data-id="{{ $latestLink->id }}" data-status="false">
                                                     Active
                                                 </a>
-
-                                                @if ($latestLink->last_issued_url)
-                                                    <button type="button" class="badge btn-outline-info copyBtn"
-                                                        data-url="{{ $latestLink->last_issued_url }}">
-                                                        Copy
-                                                    </button>
-                                                @endif
                                             @else
                                                 <a href="javascript:void(0);"
-                                                    class="badge badge-danger btn-sm togglePaylink"
+                                                    class="badge badge-danger btn-sm"
                                                     data-id="{{ $latestLink->id }}" data-status="true">
                                                     Inactive
                                                 </a>

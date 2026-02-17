@@ -54,15 +54,8 @@
                 <div class="dropdown-menu navbar-dropdown dropdown-menu-right p-0 border-0 font-size-sm"
                     aria-labelledby="profileDropdown" data-x-placement="bottom-end">
                     <div class="p-2 text-white proInfo">
-                        {{-- <a class="dropdown-item py-1 d-flex align-items-center justify-content-between text-white"
-                            href="{{ route('auth.profile.get') }}">
-                            <span>Profile</span>
-                            <span class="p-0">
-                                <i class="mdi mdi-account-outline ml-1"></i>
-                            </span>
-                        </a> --}}
                         <a class="dropdown-item py-1 d-flex align-items-center justify-content-between text-white"
-                            href="{{ route('index.get') }}" target="_blank">
+                            href="{{ route('welcome.get') }}" target="_blank">
                             <span>Site</span>
                             <i class="mdi mdi-web"></i>
                         </a>

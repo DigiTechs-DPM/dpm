@@ -63,18 +63,14 @@
                                     <td>{{ $client->phone }}</td>
                                     <td>{{ $client->created_at->format('Y-m-d') }}</td>
                                     <td>
-                                        <a href="javascript:void(0);" class="badge btn-sm deleteUser"
-                                            data-id="{{ $client->id }}" title="Delete">
-                                            <i class="fa fa-trash text-danger" style="font-size: 20px;"></i>
-                                        </a>
                                         @if ($client->status === 'Active')
-                                            <a href="javascript:void(0);" class="badge badge-success btn-sm banUser"
+                                            <a href="javascript:void(0);" class="badge badge-success btn-sm"
                                                 data-toggle="tooltip" data-id="{{ $client->id }}" data-status="Inactive"
                                                 title="Inactive">
                                                 {{ $client->status }}
                                             </a>
                                         @else
-                                            <a href="javascript:void(0);" class="badge badge-danger btn-sm unbanUser"
+                                            <a href="javascript:void(0);" class="badge badge-danger btn-sm"
                                                 data-toggle="tooltip" data-id="{{ $client->id }}" data-status="Active"
                                                 title="Active">
                                                 {{ $client->status }}

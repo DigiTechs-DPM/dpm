@@ -185,8 +185,11 @@ class CheckoutController extends Controller
             'generated_by_type'      => $actor instanceof \App\Models\Admin ? 'admin' : 'seller',
         ]);
 
-        Notification::route('mail', $link->client?->email ?? $lead->email)
-            ->notify(new PaymentLinkNotification($link, $url));
+        Notification::route('mail', $lead->email)
+            ->notify(
+                (new PaymentLinkNotification($link, $url, 'ppc'))
+                    ->delay(now()->addSeconds(5))
+            );
 
         return back()->with('success', 'Payment link created.')->with('payment_link_url', $url);
     }

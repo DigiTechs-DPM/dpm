@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Upwork\AuthController;
 use App\Http\Controllers\upwork\CrudController;
+use App\Http\Controllers\Upwork\DisputeController;
 use App\Http\Controllers\Upwork\ViewsController;
 use App\Http\Controllers\Upwork\OrdersController;
 use App\Http\Controllers\Upwork\WebhookController;

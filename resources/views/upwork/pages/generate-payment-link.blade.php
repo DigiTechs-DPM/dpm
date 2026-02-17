@@ -162,7 +162,7 @@
                 <div class="form-group col-md-12">
                     <label>Payment Provider</label>
                     <select name="provider" class="form-control" required>
-                        <option value="stripe" selected disabled>Stripe</option>
+                        <option value="stripe" selected>Stripe</option>
                     </select>
                 </div>
             </div>

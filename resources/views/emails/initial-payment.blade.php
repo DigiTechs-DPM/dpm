@@ -18,7 +18,7 @@
                         <!-- Header Image -->
                         <tr>
                             <td style="padding: 16px; border-bottom: 1px solid red;">
-                                <img src="{{ asset('admin-assets/dpm-logos/4.png') }}" width="200" alt="DPM Logo"
+                                <img src="{{ url('admin-assets/dpm-logos/4.png') }}" width="200" alt="DPM Logo"
                                     style="display:block; margin:0 auto; border:0; outline:none;">
                             </td>
                         </tr>

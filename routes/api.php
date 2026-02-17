@@ -1,18 +1,19 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-
 use App\Http\Controllers\API\BrandingController;
-use App\Http\Controllers\Seller\WebhookController;
+
+use App\Http\Controllers\API\Client\ApiAuthController as ClientAuthController;
 use App\Http\Controllers\API\Client\ApiDataController;
+use App\Http\Controllers\API\Client\BrandConfigController;
+use App\Http\Controllers\Api\Client\ClientTicketController;
+use App\Http\Controllers\API\Client\LeadsController as ClientLeadsController;
+use App\Http\Controllers\Compliances\RefundWebhookController;
+
 use App\Http\Controllers\Seller\PayPalPaymentController;
 use App\Http\Controllers\Seller\StripePaymentController;
-use App\Http\Controllers\API\Client\BrandConfigController;
-
-use App\Http\Controllers\Api\Client\ClientTicketController;
-use App\Http\Controllers\Compliances\RefundWebhookController;
-use App\Http\Controllers\API\Client\LeadsController as ClientLeadsController;
-use App\Http\Controllers\API\Client\ApiAuthController as ClientAuthController;
+use App\Http\Controllers\Seller\WebhookController;
+use App\Http\Controllers\Upwork\DisputeController;
+use Illuminate\Support\Facades\Route;
 
 
 Route::post('/crm-lead-post', [BrandingController::class, 'storeLead'])
@@ -83,4 +84,11 @@ Route::prefix('/webhooks')->group(function () {
 
     Route::post('/paypal/dispute', [RefundWebhookController::class, 'paypalDisputeHandle'])
         ->name('paypal.dispute.webhook');
+
+    // Upwork Stripe Disputes
+    Route::post('/upwork-stripe/refund', [DisputeController::class, 'stripeRefundHandle'])
+        ->name('stripe.refund.webhook');
+    Route::post('/upwork-stripe/dispute', [DisputeController::class, 'stripeDisputeHandle'])
+        ->name('stripe.dispute.webhook');
+
 });

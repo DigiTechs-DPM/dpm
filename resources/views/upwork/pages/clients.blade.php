@@ -36,7 +36,6 @@
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th>Created At</th>
-                                <th>Account</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -63,14 +62,6 @@
                                     <td>{{ $client->email }}</td>
                                     <td>{{ $client->phone }}</td>
                                     <td>{{ $client->created_at->format('Y-m-d') }}</td>
-                                    <td>
-                                        <a href="javascript:void(0);"
-                                            class="btn btn-sm {{ isset($client->password) ? 'btn-outline-success' : 'btn-outline-primary' }}"
-                                            data-toggle="modal" data-target="#addClientAccess" data-id="{{ $client->id }}"
-                                            data-action="{{ isset($client->password) ? 'update' : 'add' }}">
-                                            {{ isset($client->password) ? 'Update Password' : 'Add Account' }}
-                                        </a>
-                                    </td>
                                     <td>
                                         <a href="javascript:void(0);" class="badge btn-sm deleteUser"
                                             data-id="{{ $client->id }}" title="Delete">

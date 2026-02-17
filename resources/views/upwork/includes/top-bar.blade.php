@@ -34,8 +34,7 @@
                     aria-expanded="false">
                     <div class="nav-profile-text">
                         @php
-                            $user = Auth::guard('admin')->user() ?? Auth::guard('seller')->user();
-                            $meta = json_decode($user->meta ?? '{}', true);
+                            $user = Auth::guard('admin')->user() ?? 'Upwork Admin';
                         @endphp
                         <p class="mb-1 text-white">{{ ucfirst($user->name ?? 'Guest') }}</p>
                     </div>
@@ -43,11 +42,6 @@
                 <div class="dropdown-menu navbar-dropdown dropdown-menu-right p-0 border-0 font-size-sm"
                     aria-labelledby="profileDropdown" data-x-placement="bottom-end">
                     <div class="p-2 text-white proInfo">
-                        <a class="dropdown-item py-1 d-flex align-items-center justify-content-between text-white"
-                            href="{{ route('index.get') }}" target="_blank">
-                            <span>Site</span>
-                            <i class="mdi mdi-web"></i>
-                        </a>
                         <a class="dropdown-item py-1 d-flex align-items-center justify-content-between text-white"
                             href="{{ route('upwork.logout') }}">
                             <span>Log Out</span>

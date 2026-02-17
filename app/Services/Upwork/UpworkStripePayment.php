@@ -3,11 +3,13 @@
 namespace App\Services\Upwork;
 
 use App\Models\AccountKey;
+use App\Models\Upwork\UpworkOrder;
 use App\Models\Upwork\UpworkPayment;
 use App\Models\Upwork\UpworkPaymentLink;
-use App\Models\Upwork\UpworkOrder;
+use App\Notifications\InitialPaymentNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Stripe\Checkout\Session;
 use Stripe\Stripe;
 use Stripe\Webhook;
@@ -186,7 +188,7 @@ class UpworkStripePayment implements UpworkPaymentGateway
             /** @var UpworkOrder $order */
             $order = UpworkOrder::lockForUpdate()->findOrFail($link->order_id);
 
-            // ✅ Idempotent guard (matches your unique constraint)
+            // ✅ Idempotent guard
             $existing = UpworkPayment::where('provider', 'stripe')
                 ->where('provider_payment_intent_id', $providerPaymentIntentId)
                 ->first();
@@ -199,7 +201,8 @@ class UpworkStripePayment implements UpworkPaymentGateway
             $remaining = max(0, (int)$order->unit_amount - (int)$order->amount_paid);
             $credit    = min($amountCents, $remaining);
 
-            UpworkPayment::create([
+            // ✅ Capture payment model
+            $payment = UpworkPayment::create([
                 'order_id'                   => $order->id,
                 'payment_link_id'            => $link->id,
                 'amount'                     => $credit,
@@ -234,6 +237,83 @@ class UpworkStripePayment implements UpworkPaymentGateway
                 'provider_session_id'        => $sessionId,
                 'provider_payment_intent_id' => $providerPaymentIntentId,
             ]);
+
+            // ✅ Load client (use link->client if relation exists, else order->client)
+            $client = $link->client ?? $order->client ?? null;
+
+            if ($client?->email) {
+                Notification::route('mail', $client->email)
+                    ->notify(
+                        (new InitialPaymentNotification($payment, $order, $client, 'upwork'))
+                            ->delay(now()->addSeconds(3))
+                    );
+            }
         });
     }
+
+    // private function recordUpworkPayment(
+    //     UpworkPaymentLink $link,
+    //     ?string $providerPaymentIntentId,
+    //     ?string $sessionId,
+    //     int $amountCents,
+    //     string $currency,
+    //     array $payload
+    // ): void {
+    //     if (!$providerPaymentIntentId) return;
+
+    //     DB::transaction(function () use ($link, $providerPaymentIntentId, $sessionId, $amountCents, $currency, $payload) {
+
+    //         /** @var UpworkOrder $order */
+    //         $order = UpworkOrder::lockForUpdate()->findOrFail($link->order_id);
+
+    //         // ✅ Idempotent guard (matches your unique constraint)
+    //         $existing = UpworkPayment::where('provider', 'stripe')
+    //             ->where('provider_payment_intent_id', $providerPaymentIntentId)
+    //             ->first();
+
+    //         if ($existing) {
+    //             return;
+    //         }
+
+    //         // cap payment by remaining due
+    //         $remaining = max(0, (int)$order->unit_amount - (int)$order->amount_paid);
+    //         $credit    = min($amountCents, $remaining);
+
+    //         UpworkPayment::create([
+    //             'order_id'                   => $order->id,
+    //             'payment_link_id'            => $link->id,
+    //             'amount'                     => $credit,
+    //             'currency'                   => $currency,
+    //             'status'                     => 'succeeded',
+    //             'provider'                   => 'stripe',
+    //             'provider_payment_intent_id' => $providerPaymentIntentId,
+    //             'payload'                    => $payload,
+    //         ]);
+
+    //         // roll-up order
+    //         $order->amount_paid += $credit;
+    //         $order->balance_due = max(0, (int)$order->unit_amount - (int)$order->amount_paid);
+
+    //         if ($order->balance_due === 0) {
+    //             $order->status = 'paid';
+    //             $order->paid_at = now();
+    //         } else {
+    //             $order->status = 'pending';
+    //         }
+
+    //         $order->provider_session_id = $sessionId;
+    //         $order->provider_payment_intent_id = $providerPaymentIntentId;
+    //         $order->save();
+
+    //         // mark link used
+    //         $link->update([
+    //             'status'                     => 'paid',
+    //             'is_active_link'             => false,
+    //             'paid_at'                    => now(),
+    //             'expires_at'                 => now(),
+    //             'provider_session_id'        => $sessionId,
+    //             'provider_payment_intent_id' => $providerPaymentIntentId,
+    //         ]);
+    //     });
+    // }
 }
