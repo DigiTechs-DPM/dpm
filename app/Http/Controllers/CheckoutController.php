@@ -2,21 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Lead;
-use App\Models\Brand;
-use App\Models\Order;
-use App\Models\Seller;
 use App\Models\AccountKey;
+use App\Models\Brand;
+use App\Models\Lead;
+use App\Models\Order;
 use App\Models\PaymentLink;
-use Illuminate\Http\Request;
+use App\Models\Seller;
+use App\Services\PaymentGatewayFactory;
+use App\Services\PaymentLinkService;
 use App\Services\PayPalGateway;
 use App\Services\StripeGateway;
-use Illuminate\Support\Facades\Log;
-use App\Services\PaymentLinkService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
-use App\Services\PaymentGatewayFactory;
-use Illuminate\Support\Facades\Notification;
-use App\Notifications\PaymentLinkNotification;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 class CheckoutController extends Controller
 {
@@ -131,24 +131,24 @@ class CheckoutController extends Controller
         $seller = auth('seller')->user();
         $admin  = auth('admin')->user();
 
-        // // Admin can always generate; seller must own lead and be in same brand
-        // $canGenerate = $admin
-        //     ? true
-        //     : ($seller && ($seller->id === $lead->seller_id && $seller->brand_id === $brand->id));
         $canGenerate = $admin ? true : ($seller && $this->sellerOwnsLead($seller, $lead, $brand));
-
         abort_unless($canGenerate, 403, 'Seller must belong to and own the lead.');
 
+        // ✅ Controller validation (still do it, but service will defend too)
         $data = $request->validate([
             'service_name'     => ['required', 'string', 'max:255'],
             'currency'         => ['required', 'string', 'size:3'],
             'total_amount'     => ['required', 'numeric', 'gt:0'],
             'payable_amount'   => ['required', 'numeric', 'gt:0'],
             'expires_in_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
-            'provider'         => ['nullable', 'in:stripe,paypal'],
-            'order_type'       => ['nullable', 'in:original,renewal'],
-            'parent_order_id'  => ['nullable', 'integer', 'exists:orders,id'], // for renewals
-            'order'            => ['nullable', 'integer'], // you were passing as $request->order
+
+            // Make provider required. Nullable provider is dumb: it fails later and wastes time.
+            'provider'         => ['required', Rule::in(['stripe', 'paypal'])],
+
+            'order_type'       => ['nullable', Rule::in(['original', 'renewal'])],
+
+            // Optional: if you pass it in form. If not, we fallback to route param {order}.
+            'base_order_id'    => ['nullable', 'integer', 'exists:orders,id'],
         ]);
 
         if ((float)$data['payable_amount'] > (float)$data['total_amount']) {
@@ -156,43 +156,170 @@ class CheckoutController extends Controller
         }
 
         $actor = $admin ?: $seller;
-        abort_unless($actor, 403);
+        abort_unless($actor, 403, 'Unauthorized actor.');
 
-        $link = $links->createInstallmentLink(
-            brand: $brand,
-            lead: $lead,
-            sellerIdWhoGenerated: $seller->id ?? $lead->seller_id,
-            serviceName: $data['service_name'],
-            currency: strtoupper($data['currency']),
-            totalCents: (int) round($data['total_amount'] * 100),
-            payNowCents: (int) round($data['payable_amount'] * 100),
-            expiresInHours: $data['expires_in_hours'] ?? null,
-            provider: $data['provider'] ?? null,
-            orderType: $data['order_type'] ?? 'original',
-            parentOrderId: (int) ($data['parent_order_id'] ?? $request->order ?? 0) ?: null,
-            meta: [
-                'generated_by_id'   => $actor->id,
-                'generated_by_type' => $actor instanceof \App\Models\Admin ? 'admin' : 'seller',
-            ],
-        );
+        $orderType = $data['order_type'] ?? 'original';
 
-        $url = $link->signedUrl();
-        $link->update([
-            'last_issued_url'        => $url,
-            'last_issued_at'         => now(),
-            'last_issued_expires_at' => $link->expires_at ?? now()->addDays(7),
-            'generated_by_id'        => $actor->id,
-            'generated_by_type'      => $actor instanceof \App\Models\Admin ? 'admin' : 'seller',
-        ]);
+        // ✅ baseOrderId resolution (ONLY for renewal)
+        $baseOrderId = null;
+        if ($orderType === 'renewal') {
+            // Priority: form field -> route param -> request->order
+            $baseOrderId = (int)($data['base_order_id'] ?? 0);
 
-        Notification::route('mail', $lead->email)
-            ->notify(
-                (new PaymentLinkNotification($link, $url, 'ppc'))
-                    ->delay(now()->addSeconds(5))
-            );
+            if ($baseOrderId <= 0) {
+                $baseOrderId = (int)($request->route('order') ?? 0);
+            }
+            if ($baseOrderId <= 0) {
+                $baseOrderId = (int)($request->order ?? 0);
+            }
 
-        return back()->with('success', 'Payment link created.')->with('payment_link_url', $url);
+            abort_unless($baseOrderId > 0, 422, 'Order id is required for renewal.');
+
+            // ✅ Sanity check: belongs to this lead + brand
+            $base = Order::query()->select(['id', 'lead_id', 'brand_id'])->findOrFail($baseOrderId);
+            abort_unless((int)$base->lead_id === (int)$lead->id, 422, 'Order does not belong to this lead.');
+            abort_unless((int)$base->brand_id === (int)$brand->id, 422, 'Order does not belong to this brand.');
+        }
+
+        try {
+            [$link, $url] = DB::transaction(function () use ($links, $brand, $lead, $seller, $actor, $data, $orderType, $baseOrderId) {
+
+                $link = $links->createInstallmentLink(
+                    brand: $brand,
+                    lead: $lead,
+                    sellerIdWhoGenerated: (int)($seller->id ?? $lead->seller_id),
+                    serviceName: $data['service_name'],
+                    currency: strtoupper($data['currency']),
+                    totalCents: (int) round(((float)$data['total_amount']) * 100),
+                    payNowCents: (int) round(((float)$data['payable_amount']) * 100),
+                    expiresInHours: $data['expires_in_hours'] ?? null,
+                    provider: $data['provider'],
+                    orderType: $orderType,
+                    baseOrderId: $baseOrderId, // ✅ IMPORTANT
+                    meta: [
+                        'generated_by_id'   => $actor->id,
+                        'generated_by_type' => $actor instanceof \App\Models\Admin ? 'admin' : 'seller',
+                    ],
+                );
+
+                $url = $link->signedUrl();
+
+                $link->update([
+                    'last_issued_url'        => $url,
+                    'last_issued_at'         => now(),
+                    'last_issued_expires_at' => $link->expires_at ?? now()->addDays(7),
+                    'generated_by_id'        => $actor->id,
+                    'generated_by_type'      => $actor instanceof \App\Models\Admin ? 'admin' : 'seller',
+                ]);
+
+                // ✅ Only run side effects AFTER COMMIT
+                DB::afterCommit(function () use ($lead, $link, $url) {
+                    try {
+                        // Make sure your notification implements ShouldQueue AND $afterCommit=true
+                        // Notification::route('mail', $lead->email)->notify(new PaymentLinkNotification($link, $url, 'ppc'));
+                    } catch (\Throwable $e) {
+                        Log::error('Payment link email failed after commit', [
+                            'lead_id' => $lead->id,
+                            'link_id' => $link->id,
+                            'error'   => $e->getMessage(),
+                        ]);
+                    }
+                });
+
+                return [$link, $url];
+            });
+
+            return back()
+                ->with('success', 'Payment link created.')
+                ->with('payment_link_url', $url);
+        } catch (\Throwable $e) {
+            Log::error('Error creating payment link', [
+                'error'        => $e->getMessage(),
+                'brand_id'     => $brand->id ?? null,
+                'lead_id'      => $lead->id ?? null,
+                'order_type'   => $orderType ?? null,
+                'base_order_id' => $baseOrderId ?? null,
+                'actor_type'   => $actor instanceof \App\Models\Admin ? 'admin' : 'seller',
+                'actor_id'     => $actor->id ?? null,
+            ]);
+
+            // You can expose $e->getMessage() in local env only, but not in prod
+            return back()->with('error', $e->getMessage());
+        }
     }
+    // public function generatePayLink(Request $request, Brand $brand, Lead $lead, PaymentLinkService $links)
+    // {
+    //     $seller = auth('seller')->user();
+    //     $admin  = auth('admin')->user();
+
+    //     // Admin can always generate; seller must own lead and be in the same brand
+    //     $canGenerate = $admin ? true : ($seller && $this->sellerOwnsLead($seller, $lead, $brand));
+
+    //     abort_unless($canGenerate, 403, 'Seller must belong to and own the lead.');
+
+    //     $data = $request->validate([
+    //         'service_name'     => ['required', 'string', 'max:255'],
+    //         'currency'         => ['required', 'string', 'size:3'],
+    //         'total_amount'     => ['required', 'numeric', 'gt:0'],
+    //         'payable_amount'   => ['required', 'numeric', 'gt:0'],
+    //         'expires_in_hours' => ['nullable', 'integer', 'min:1', 'max:720'],
+    //         'provider'         => ['nullable', 'in:stripe,paypal'],
+    //         'order_type'       => ['nullable', 'in:original,renewal'],
+    //         'parent_order_id'  => ['nullable', 'integer', 'exists:orders,id'], // for renewals
+    //     ]);
+
+    //     // Ensure payable amount doesn't exceed the total amount
+    //     if ((float)$data['payable_amount'] > (float)$data['total_amount']) {
+    //         return back()->with('error', 'Payable amount cannot exceed total amount.');
+    //     }
+
+    //     // Determine the actor (admin or seller)
+    //     $actor = $admin ?: $seller;
+    //     abort_unless($actor, 403);
+
+    //     try {
+    //         // Create payment link
+    //         $link = $links->createInstallmentLink(
+    //             brand: $brand,
+    //             lead: $lead,
+    //             sellerIdWhoGenerated: $seller->id ?? $lead->seller_id,
+    //             serviceName: $data['service_name'],
+    //             currency: strtoupper($data['currency']),
+    //             totalCents: (int) round($data['total_amount'] * 100),
+    //             payNowCents: (int) round($data['payable_amount'] * 100),
+    //             expiresInHours: $data['expires_in_hours'] ?? null,
+    //             provider: $data['provider'] ?? null,
+    //             orderType: $data['order_type'] ?? 'original',
+    //             parentOrderId: (int) ($data['parent_order_id'] ?? $request->order ?? 0) ?: null,
+    //             meta: [
+    //                 'generated_by_id'   => $actor->id,
+    //                 'generated_by_type' => $actor instanceof \App\Models\Admin ? 'admin' : 'seller',
+    //             ]
+    //         );
+
+    //         // Generate URL
+    //         $url = $link->signedUrl();
+
+    //         // Update payment link details in DB
+    //         $link->update([
+    //             'last_issued_url'        => $url,
+    //             'last_issued_at'         => now(),
+    //             'last_issued_expires_at' => $link->expires_at ?? now()->addDays(7),
+    //             'generated_by_id'        => $actor->id,
+    //             'generated_by_type'      => $actor instanceof \App\Models\Admin ? 'admin' : 'seller',
+    //         ]);
+
+    //         // Send notification email after data commit to DB
+    //         // Notification::route('mail', $lead->email)
+    //         //     ->notify(new PaymentLinkNotification($link, $url, 'ppc'));
+
+    //         return back()->with('success', 'Payment link created.')->with('payment_link_url', $url);
+    //     } catch (\Exception $e) {
+    //         // Log the error and provide a generic error message
+    //         Log::error('Error creating payment link', ['error' => $e->getMessage()]);
+    //         return back()->with('error', 'There was an issue generating the payment link.');
+    //     }
+    // }
 
     // Create checkout with single payment account
     public function createCheckout(Request $request, string $token, PaymentGatewayFactory $factory)

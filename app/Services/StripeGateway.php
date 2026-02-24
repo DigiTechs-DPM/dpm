@@ -119,7 +119,7 @@ class StripeGateway implements PaymentGateway
             payloadArray: $session->toArray()
         );
 
-        $this->sendInitialPaymentNotifications($payment, $order);
+        // $this->sendInitialPaymentNotifications($payment, $order);
 
         Log::info('Stripe Initial Payment Notifications sent');
     }
@@ -200,7 +200,7 @@ class StripeGateway implements PaymentGateway
                 payloadArray: (array) $session
             );
 
-            $this->sendInitialPaymentNotifications($payment, $order); // if you want via webhook too
+            // $this->sendInitialPaymentNotifications($payment, $order); // if you want via webhook too
 
             Log::info('Stripe Initial Payment Notifications sent');
         } else {
@@ -325,8 +325,13 @@ class StripeGateway implements PaymentGateway
 
             // Optional counters for FS
             if ($creditedToId === (int)$order->front_seller_id) {
-                $decider->updateCountersAfterCredit($order, $creditCents);
+                // $decider->updateCountersAfterCredit($order, $creditCents);
+                $decider->updateCountersAfterCredit($order, $creditCents, $creditedToId);
             }
+
+            DB::afterCommit(function () use ($order) {
+                app(\App\Services\BriefService::class)->dispatchBriefEmail($order->id);
+            });
 
             return [$payment, $order];
         });

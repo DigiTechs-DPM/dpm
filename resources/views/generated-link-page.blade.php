@@ -73,9 +73,6 @@
                 ? 'https://www.google.com/s2/favicons?sz=64&domain=' . parse_url($brand->brand_url, PHP_URL_HOST)
                 : $brand->brand_url;
 
-        $payKeys = DB::table('account_keys')->where('brand_id', $brand->id)->first();
-        // dd($payKeys);
-
         $fullName = $client->name; // e.g., "Frankline George"
         $nameParts = explode(' ', $fullName, 2); // split into 2 parts only
 
@@ -184,55 +181,6 @@
         </script>
     </div>
 
-    {{-- <script src="https://js.stripe.com/v3/"></script>
-    <script>
-        document.addEventListener("DOMContentLoaded", async function() {
-            const stripe = Stripe('{{ $payKeys->stripe_publishable_key }}');
-            const elements = stripe.elements();
-            const card = elements.create("card");
-            card.mount("#card-element");
-
-            const form = document.getElementById("payment-form");
-            const cardErrors = document.getElementById("card-errors");
-
-            form.addEventListener("submit", async function(event) {
-                event.preventDefault();
-                const {
-                    paymentIntentClientSecret
-                } = await fetch('/api/payment-intent', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]')
-                            .value,
-                    },
-                    body: JSON.stringify({
-                        token: document.getElementById("payment_link_token").value,
-                        name: document.getElementById("name").value,
-                        email: document.getElementById("email").value
-                    })
-                }).then(r => r.json());
-
-                const result = await stripe.confirmCardPayment(paymentIntentClientSecret, {
-                    payment_method: {
-                        card: card,
-                        billing_details: {
-                            name: document.getElementById("name").value,
-                            email: document.getElementById("email").value,
-                        },
-                    },
-                });
-
-                if (result.error) {
-                    cardErrors.textContent = result.error.message;
-                } else {
-                    if (result.paymentIntent.status === 'succeeded') {
-                        window.location.href = '/payments/thanks';
-                    }
-                }
-            });
-        });
-    </script> --}}
 </body>
 
 </html>

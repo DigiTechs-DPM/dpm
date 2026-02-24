@@ -4,6 +4,27 @@
 
 @section('mian-content')
 
+    @php
+        // Only show brief for the **first order of each service**
+        $filteredOrders = collect();
+        $seenServices = [];
+
+        foreach ($orders as $order) {
+            $service = $order->service_name;
+
+            // Skip renewal orders if original exists
+            if (isset($seenServices[$service])) {
+                continue;
+            }
+
+            // Mark service as seen
+            $seenServices[$service] = true;
+
+            // Push order to filtered list (prefer original over renewal)
+            $filteredOrders->push($order);
+        }
+    @endphp
+
     <section class="brief-form-section">
         <div class="container bg-colored">
             <h2 class="heading-2">
@@ -12,7 +33,7 @@
             <nav>
                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
                     @php $i = 0; @endphp
-                    @foreach ($orders as $order)
+                    @foreach ($filteredOrders as $order)
                         <button class="nav-link mx-1 {{ $i === 0 ? 'active' : '' }}"
                             id="form-brief-tab-2022-5561-{{ $i }}" data-bs-toggle="tab"
                             data-bs-target="#form-brief-2022-5561-{{ $i }}" type="button" role="tab"
@@ -25,7 +46,7 @@
                 </div>
             </nav>
             <div class="tab-content" id="nav-tabContent">
-                @foreach ($orders as $index => $order)
+                @foreach ($filteredOrders as $index => $order)
                     <div class="tab-pane fade show {{ $index === 0 ? 'active' : '' }}"
                         id="form-brief-2022-5561-{{ $index }}" role="tabpanel"
                         aria-labelledby="form-brief-tab-2022-5561-{{ $index }}" tabindex="0">

@@ -114,13 +114,18 @@
                     <input type="text" class="form-control" name="service_name" value="{{ $serviceName }}" readonly
                         required>
                 </div>
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-6">
                     <label>Payment Provider</label>
                     <select name="provider" class="form-control" required>
                         <option value="" selected>-- select method --</option>
                         <option value="stripe">Stripe</option>
                         <option value="paypal">PayPal</option>
                     </select>
+                </div>
+                <div class="form-group col-md-6">
+                    <label>Expires in (hours)</label>
+                    <input type="number" class="form-control" name="expires_in_hours" min="1" max="3"
+                        value="{{ old('expires_in_hours', 3) }}" placeholder="e.g., 1">
                 </div>
                 <div class="form-group col-md-6">
                     <label>Total Amount</label>
@@ -141,11 +146,7 @@
                         </small>
                     @endif
                 </div>
-                <div class="form-group col-md-6" hidden>
-                    <label>Expires in (hours)</label>
-                    <input type="number" class="form-control" name="expires_in_hours" min="1" max="3"
-                        value="{{ old('expires_in_hours', 3) }}" placeholder="e.g., 1">
-                </div>
+
             </div>
 
             <div class="text-center">

@@ -51,11 +51,49 @@
             pointer-events: none;
             /* so it won’t block clicks */
         }
+
+        .bg-gradient-3 {
+            background: linear-gradient(135deg, #db165b, #673187, #f7b63e);
+            color: white !important;
+        }
+
+        /* Background decorative shapes */
+        .bg-shape {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            opacity: 0.3;
+            z-index: -1;
+        }
+
+        .bg-shape.one {
+            background: #a18aff;
+            top: 10%;
+            left: 5%;
+        }
+
+        .bg-shape.two {
+            background: #f7b63e;
+            bottom: 10%;
+            right: 8%;
+        }
+
+        .bg-shape.three {
+            background: #db165b94;
+            top: 22%;
+            right: 16%;
+        }
     </style>
 
     <div class="floating-badge">
         Zaryth Alpharos
     </div>
+
+    <!-- Decorative Background Circles -->
+    <div class="bg-shape one"></div>
+    <div class="bg-shape two"></div>
+    <div class="bg-shape three"></div>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"
         integrity="sha256-2Pmvv0kuTBOenSvLm6bvfBSSHrUJ+3A7x6P5Ebd07/g=" crossorigin="anonymous"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/2.0.1/css/toastr.css" rel="stylesheet" />

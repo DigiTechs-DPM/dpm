@@ -37,21 +37,21 @@ Route::prefix('brand')->group(function () {
 
 Route::prefix('pay')->group(function () {
 
-    Route::get('/now/{token}', [WebhookController::class, 'showPaymentPage'])
+    Route::get('/now/{token?}', [WebhookController::class, 'showPaymentPage'])
         ->name('paylinks.show');
 
-    Route::post('/now/{token}/checkout', [WebhookController::class, 'createCheckout'])
+    Route::post('/now/{token?}/checkout', [WebhookController::class, 'createCheckout'])
         ->name('paylinks.checkout');
 
-    Route::get('/now/{token}/success', [WebhookController::class, 'checkoutSuccess'])
+    Route::get('/now/{token?}/success', [WebhookController::class, 'checkoutSuccess'])
         ->name('paylinks.success');
 
     // NEW
-    Route::get('/now/{token}/cancel', [WebhookController::class, 'checkoutCancel'])
+    Route::get('/now/{token?}/cancel', [WebhookController::class, 'checkoutCancel'])
         ->name('paylinks.cancel');
 
     // NEW
-    Route::get('/now/{token}/error', [WebhookController::class, 'checkoutError'])
+    Route::get('/now/{token?}/error', [WebhookController::class, 'checkoutError'])
         ->name('paylinks.error');
 });
 

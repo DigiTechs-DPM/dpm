@@ -1,3 +1,7 @@
+@php
+    $meta = $brief?->meta ?? [];
+    $answers = isset($meta['query']) && is_array($meta['query']) ? $meta['query'] : $meta; // ✅ normalize
+@endphp
 <form class="col-md-12 brief-form p-0" method="POST" action="{{ route('client.brief-form.post') }}"
     enctype="multipart/form-data">
     @csrf
@@ -15,7 +19,7 @@
                 <div class="col-md-12 form-group mb-3">
                     <label for="business_name">What is the name of your business or brand? <span>*</span></label>
                     <input type="text" name="query[business_name]" id="business_name" class="form-control"
-                        value="{{ old('query.business_name', $brief->meta['business_name'] ?? '') }}" required>
+                        value="{{ old('query.business_name', $answers['business_name'] ?? '') }}" required>
                 </div>
 
                 <!-- Platforms -->

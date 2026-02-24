@@ -2,20 +2,18 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Models\Lead;
+use App\Http\Controllers\Controller;
 use App\Models\Brand;
 use App\Models\Client;
-use Illuminate\Http\Request;
-use App\Services\LeadAssigner;
-use App\Services\LeadClassifier;
-use Illuminate\Support\Facades\DB;
-use App\Http\Controllers\Controller;
-use App\Services\PaymentLinkService;
-use App\Services\PaymentGatewayFactory;
-use Illuminate\Support\Facades\Notification;
+use App\Models\Lead;
 use App\Notifications\PaymentLinkNotification;
-use App\Notifications\LeadAutoReplyNotification;
-use App\Notifications\LeadCreatedFsNotification;
+use App\Services\LeadClassifier;
+use App\Services\PaymentGatewayFactory;
+use App\Services\PaymentLinkService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 
 class BrandingController extends Controller
 {
@@ -46,86 +44,101 @@ class BrandingController extends Controller
     public function storeLead(Request $req, LeadClassifier $classifier)
     {
         $incoming = $req->all();
-        // 1️⃣ Identify brand (from URL or Origin)
+
         $brand = $this->brandFromUrl($incoming['url'] ?? null)
             ?? $this->brandFromOrigin($req);
+
         abort_unless($brand, 422, 'Unknown brand');
-        // 2️⃣ Required core fields
+
         $coreFields = ['name', 'email', 'phone', 'service', 'message'];
         $core = [];
-        // Extract known fields (name, email, phone, message)
-        foreach ($coreFields as $field) {
-            $core[$field] = isset($incoming[$field])
-                ? trim($incoming[$field])
-                : null;
-        }
-        // 3️⃣ Validate required core fields
-        $validated = validator($core, [
-            'name'   => 'required|string|max:255',
-            'email'  => 'required|email|max:255',
-            'phone'  => 'required|string|max:30',
-            'message' => 'nullable|string|max:4000',
-            'service' => 'nullable|string',
-        ])->validate();
-        // 4️⃣ Remove these from incoming and save everything else in meta
-        $meta = $incoming;
-        foreach ($coreFields as $field) {
-            unset($meta[$field]);
-        }
-        // Always include context info
-        $meta['ip']  = $req->ip();
-        $meta['ua']  = substr((string)$req->userAgent(), 0, 255);
-        $meta['url'] = $incoming['url'] ?? $req->headers->get('Referer');
-        $meta['timezone'] = $incoming['timezone'] ?? now()->timezoneName();
-        $meta['service'] = $validated['service'];
-        // 5️⃣ AI classification (optional)
-        $prediction = $classifier->classify($validated);
-        // 6️⃣ Create or find client
-        $client = Client::firstOrCreate(
-            ['email' => strtolower(trim($validated['email']))],
-            [
-                'name'  => $validated['name'],
-                'phone' => $validated['phone'] ?? null,
-            ]
-        );
-        // 7️⃣ Auto-assign seller
-        $seller = app(LeadAssigner::class)->assignNext($brand);
-        // 8️⃣ Create the lead
-        $lead = Lead::create([
-            'brand_id'   => $brand->id,
-            'seller_id'  => $seller->id,
-            'client_id'  => $client->id,
-            'name'       => $validated['name'],
-            'email'      => $validated['email'],
-            'phone'      => $validated['phone'],
-            'message'    => $validated['message'],
-            'status'     => 'new',
-            'prediction' => json_encode($prediction),
-            'domain_url' => $this->host($meta['url']),
-            'meta'       => $meta, // 🔥 everything else stored here
-        ]);
 
-        // Auto reply to client (5 sec delay)
-        Notification::route('mail', $lead->email)
-            ->notify(
-                (new LeadAutoReplyNotification($lead))
-                    ->delay(now()->addSeconds(3))
-            );
-        // Notify FS (8 sec delay)
-        if ($seller && $seller->email) {
-            Notification::route('mail', $seller->email)
-                ->notify(
-                    (new LeadCreatedFsNotification($lead, $seller))
-                        ->delay(now()->addSeconds(6))
-                );
+        foreach ($coreFields as $field) {
+            $core[$field] = isset($incoming[$field]) ? trim((string) $incoming[$field]) : null;
         }
+
+        $validated = validator($core, [
+            'name'    => 'required|string|max:255',
+            'email'   => 'required|email|max:255',
+            'phone'   => 'required|string|max:30',
+            'message' => 'nullable|string|max:4000',
+            'service' => 'nullable|string|max:255',
+        ])->validate();
+
+        $meta = $incoming;
+        foreach ($coreFields as $field) unset($meta[$field]);
+
+        $meta['ip']       = $req->ip();
+        $meta['ua']       = substr((string) $req->userAgent(), 0, 255);
+        $meta['url']      = $incoming['url'] ?? $req->headers->get('Referer');
+        $meta['timezone'] = $incoming['timezone'] ?? now()->timezoneName();
+        $meta['service']  = $validated['service'] ?? null;
+
+        // Optional: if AI classification fails, don't kill lead creation
+        try {
+            $prediction = $classifier->classify($validated);
+        } catch (\Throwable $e) {
+            Log::warning('Lead classification failed', ['error' => $e->getMessage()]);
+            $prediction = null;
+        }
+
+        // ✅ Make DB write atomic
+        $result = DB::transaction(function () use ($brand, $validated, $meta, $prediction) {
+            $client = Client::firstOrCreate(
+                ['email' => strtolower(trim($validated['email']))],
+                [
+                    'name'  => $validated['name'],
+                    'phone' => $validated['phone'] ?? null,
+                ]
+            );
+
+            $seller = app(\App\Services\LeadAssigner::class)->assignNext($brand);
+            abort_unless($seller, 422, 'No seller available for this brand.');
+
+            $lead = Lead::create([
+                'brand_id'   => $brand->id,
+                'seller_id'  => $seller->id,
+                'client_id'  => $client->id,
+                'name'       => $validated['name'],
+                'email'      => $validated['email'],
+                'phone'      => $validated['phone'],
+                'message'    => $validated['message'] ?? null,
+                'status'     => 'new',
+                'prediction' => $prediction ? json_encode($prediction) : null,
+                'domain_url' => $this->host($meta['url']),
+                'meta'       => $meta,
+            ]);
+
+            // ✅ Email ONLY after commit
+            DB::afterCommit(function () use ($lead, $seller) {
+                try {
+                    Notification::route('mail', $lead->email)
+                        ->notify(new \App\Notifications\LeadAutoReplyNotification($lead));
+
+                    if ($seller && $seller->email) {
+                        Notification::route('mail', $seller->email)
+                            ->notify(new \App\Notifications\LeadCreatedFsNotification($lead, $seller));
+                    }
+                } catch (\Throwable $e) {
+                    // IMPORTANT: don't break the request after commit; just log.
+                    Log::error('Lead notifications failed', [
+                        'lead_id' => $lead->id,
+                        'error'   => $e->getMessage(),
+                    ]);
+                }
+            });
+
+            return [$lead, $client, $seller];
+        });
+
+        [$lead, $client, $seller] = $result;
 
         return response()->json([
-            'ok'       => true,
-            'lead_id'  => $lead->id,
-            'data'     => $lead,
-            'meta'     => $meta,
-            'prediction' => $prediction
+            'ok'         => true,
+            'lead_id'    => $lead->id,
+            'data'       => $lead,
+            'meta'       => $meta,
+            'prediction' => $prediction,
         ], 201);
     }
 

@@ -45,40 +45,43 @@ class AdminOrderController extends Controller
 
     public function adminOrderRenewals(Request $request, int $orderId)
     {
-        $seller = auth('seller')->user();
-        $isAdmin = auth('admin')->check();
-
-        if (!$seller && !$isAdmin) {
+        if (!isSeller() && !isAdmin()) {
             return redirect()->route('admin.login.get')
                 ->with('error', 'You must be logged in.');
         }
 
-        // Fetch main/original order
+        // Fetch main/original order using the orderId passed to the route (client_id should match)
         $order = Order::with([
             'brand:id,brand_name',
             'client:id,name,email',
             'seller:id,name,email,sudo_name,brand_id',
             'latestPaymentLink:id,order_id,is_active_link,last_issued_url'
-        ])->findOrFail($orderId);
+        ])->where('client_id', $orderId) // Use where condition on client_id to find the order
+            ->first(); // Use `first()` to get the first matching result
 
+        // Debugging output (check the order retrieved)
+        // dd('ok', $order);
+
+        // If no order is found, redirect with an error message
         if (!$order) {
             return redirect()->back()
                 ->with('error', 'Order Not Found.');
         }
 
-        // Fetch renewal orders of this specific order
+        // Fetch renewal orders of this specific order (parent_order_id should match the original order's id)
         $renewals = Order::with([
             'brand:id,brand_name',
             'client:id,name,email',
             'seller:id,name,email,sudo_name,brand_id',
             'latestPaymentLink:id,order_id,is_active_link,last_issued_url'
         ])
-            ->where('parent_order_id', $order->id)
+            ->where('parent_order_id', $order->id) // Get renewal orders based on the original order's id
             ->orderByDesc('created_at')
-            ->get();
+            ->get(); // Use `get()` to retrieve multiple renewal orders
 
         return view('admin.pages.renewed-orders', compact('order', 'renewals'));
     }
+
     // optimize client renewal order
     // public function adminClientRenewedOrders(Request $request, int $clientId)
     // {

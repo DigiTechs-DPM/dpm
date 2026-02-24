@@ -74,8 +74,7 @@
                         <tr>
                             <td align="center" style="padding:0;">
                                 <img src="https://www.freeiconspng.com/uploads/forgot-password-icon-27.png"
-                                    alt="Reset Password" width="600"
-                                    style="max-width:50%; border:0; display:block;">
+                                    alt="Reset Password" width="600" style="max-width:50%; border:0; display:block;">
                             </td>
                         </tr>
 

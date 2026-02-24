@@ -80,6 +80,100 @@
 
             $isOrder = isset($order) && $order;
             $currency = old('currency', $isOrder ? $order->currency : 'USD');
+
+            // service name should not get overwritten randomly
+            $serviceName = old('service_name', $isOrder ? $order->service_name ?? '' : $lead->meta['service'] ?? '');
+
+            $totalDefault = old(
+                'total_amount',
+                $isOrder ? number_format(($order->unit_amount ?? 0) / 100, 2, '.', '') : '',
+            );
+
+            $dueCents = (int) ($isOrder ? $order->balance_due ?? 0 : 0);
+            $payNowDefault = old('payable_amount', $isOrder ? number_format($dueCents / 100, 2, '.', '') : '');
+
+            // This is the important one:
+            // For renewal flow, this is the order id we are acting on (could be original or renewal)
+            $baseOrderId = $isOrder ? (int) $order->id : null;
+        @endphp
+
+        <form method="POST"
+            action="{{ route('generate-payment-link', [
+                'brand' => $brand->id,
+                'lead' => $lead->id,
+                'order' => $order->id ?? null, // route param fallback
+            ]) }}">
+            @csrf
+
+            {{-- Always send order_type --}}
+            <input type="hidden" name="order_type" value="{{ $isRenewal ? 'renewal' : 'original' }}">
+
+            {{-- For renewal: send base_order_id explicitly (don’t rely only on route) --}}
+            @if ($isRenewal)
+                <input type="hidden" name="base_order_id" value="{{ $baseOrderId }}">
+            @endif
+
+            <div class="form-row">
+                <div class="form-group col-md-12">
+                    <label>Brand</label>
+                    <input type="text" class="form-control" value="{{ $brand->brand_name }}" readonly>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label>Order Type</label>
+                    <input type="text" class="form-control" value="{{ $isRenewal ? 'renewal' : 'original' }}" readonly>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label>Currency</label>
+                    <input type="text" class="form-control" name="currency" value="{{ $currency }}" maxlength="3"
+                        readonly required>
+                </div>
+
+                <div class="form-group col-md-12">
+                    <label>Service Name</label>
+                    <input type="text" class="form-control" name="service_name" value="{{ $serviceName }}" readonly
+                        required>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label>Payment Provider</label>
+                    <select name="provider" class="form-control" required>
+                        <option value="">-- select method --</option>
+                        <option value="stripe" {{ old('provider') === 'stripe' ? 'selected' : '' }}>Stripe</option>
+                        <option value="paypal" {{ old('provider') === 'paypal' ? 'selected' : '' }}>PayPal</option>
+                    </select>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label>Expires in (hours)</label>
+                    <input type="number" class="form-control" name="expires_in_hours" min="1" max="720"
+                        value="{{ old('expires_in_hours', 3) }}" placeholder="e.g., 24">
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label>Total Amount</label>
+                    <input type="number" class="form-control" name="total_amount" step="0.01"
+                        value="{{ $totalDefault }}" placeholder="e.g., 4000.00" required>
+                </div>
+
+                <div class="form-group col-md-6">
+                    <label>Pay Now Amount</label>
+                    <input type="number" class="form-control" name="payable_amount" step="0.01"
+                        value="{{ $payNowDefault }}" placeholder="e.g., 2000.00" required>
+                </div>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn-submit bg-gradient-3">Generate Link</button>
+            </div>
+        </form>
+        {{-- @php
+            $orderType = request('type'); // "renewal" or null
+            $isRenewal = $orderType === 'renewal';
+
+            $isOrder = isset($order) && $order;
+            $currency = old('currency', $isOrder ? $order->currency : 'USD');
             $serviceName = old('service_name', $isOrder ? $order->service_name ?? '' : '');
             $totalDefault = $isOrder
                 ? number_format(($order->unit_amount ?? 0) / 100, 2, '.', '')
@@ -117,13 +211,18 @@
                     <input type="text" class="form-control" name="service_name" value="{{ $serviceName }}" readonly
                         required>
                 </div>
-                <div class="form-group col-md-12">
+                <div class="form-group col-md-6">
                     <label>Payment Provider</label>
                     <select name="provider" class="form-control" required>
                         <option value="" selected>-- select method --</option>
                         <option value="stripe">Stripe</option>
                         <option value="paypal">PayPal</option>
                     </select>
+                </div>
+                <div class="form-group col-md-6">
+                    <label>Expires in (hours)</label>
+                    <input type="number" class="form-control" name="expires_in_hours" min="1" max="3"
+                        value="{{ old('expires_in_hours', 3) }}" placeholder="e.g., 1">
                 </div>
                 <div class="form-group col-md-6">
                     <label>Total Amount</label>
@@ -136,17 +235,12 @@
                     <input type="number" class="form-control" name="payable_amount" step="0.01"
                         placeholder="e.g., 2000.00" required>
                 </div>
-                {{-- <div class="form-group col-md-6">
-                    <label>Expires in (hours)</label>
-                    <input type="number" class="form-control" name="expires_in_hours" min="1" max="3"
-                        value="{{ old('expires_in_hours', 3) }}" placeholder="e.g., 1">
-                </div> --}}
             </div>
 
             <div class="text-center">
                 <button type="submit" class="btn-submit bg-gradient-3">Generate Link</button>
             </div>
-        </form>
+        </form> --}}
     </div>
 
 @endsection

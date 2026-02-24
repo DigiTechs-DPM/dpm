@@ -33,6 +33,7 @@ class Questionnair extends Model
 
     protected $casts = [
         'meta' => 'array',
+        'brief_token_expires_at' => 'datetime',
     ];
 
     // 🔹 Relationship with Client

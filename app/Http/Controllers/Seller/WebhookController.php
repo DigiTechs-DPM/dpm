@@ -2,15 +2,16 @@
 
 namespace App\Http\Controllers\Seller;
 
+use App\Http\Controllers\Controller;
 use App\Models\AccountKey;
 use App\Models\PaymentLink;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
-use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Crypt;
-use App\Services\PaymentGatewayFactory;
-use Illuminate\Support\Facades\Notification;
 use App\Notifications\PaymentFailedNotification;
+use App\Services\PaymentGatewayFactory;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 
 class WebhookController extends Controller
 {
@@ -70,61 +71,156 @@ class WebhookController extends Controller
 
     public function createCheckout(Request $request, string $token, PaymentGatewayFactory $factory)
     {
-        $link = PaymentLink::with(['order', 'lead'])->where('token', $token)->firstOrFail();
-        if (! $link->isActiveLink()) {
-            return response()->view('errors.payLink-error', [
-                'message' => 'This payment link is not active.'
-            ], 410);
-            // abort(410, 'This payment link is not active.');
-        }
-
         $buyer = $request->validate([
             'first_name' => ['nullable', 'string', 'max:255'],
             'last_name'  => ['nullable', 'string', 'max:255'],
             'email'      => ['required', 'email', 'max:255'],
             'phone'      => ['nullable', 'string', 'max:30'],
             'address'    => ['nullable', 'string', 'max:255'],
-            // 'city'       => ['nullable', 'string', 'max:255'],
-            // 'state'      => ['nullable', 'string', 'max:255'],
-            // 'zip'        => ['nullable', 'string', 'max:30'],
-            // 'country'    => ['nullable', 'string', 'max:255'],
         ]);
-        // dd($request->all(), $link);
 
-        $brand = $link->brand ?? $link->order->brand ?? null;
-        abort_if(!$brand, 500, 'Missing brand information.');
+        try {
+            // Lock link row to avoid concurrent checkout creation (double-click, refresh, bots)
+            $result = DB::transaction(function () use ($token, $buyer, $factory) {
 
-        // ✅ Load the keys from DB
-        $keys = AccountKey::where('brand_id', $brand->id)
-            ->where('status', 'active')
-            ->first();
-        // dd($keys);
-        if (!$keys) {
-            return response()->json(['error' => 'Stripe or PayPal keys are missing for this brand'], 500);
-        }
-        // ✅ Optional: log or preview keys
-        Log::info('Stripe and PayPal keys loaded for brand', [
-            'brand_id' => $brand->id,
-            'stripe_key' => substr($keys->stripe_secret_key, 0, 6) . '****',
-            'paypal_secret' => substr($keys->paypal_secret, 0, 6) . '****'
-        ]);
-        $gateway = $factory->forProviderWithBrand($link->provider, $brand);   // 'stripe' or 'paypal'
-        $checkout = $gateway->createCheckout($link, $buyer); // returns ['id'=>..., 'url'=>...]
-        // dd($gateway,$checkout);
-        // (optional) persist gateway session ID if you want:
-        if (!empty($checkout['id'])) {
-            if ($link->provider === 'stripe') {
-                $link->update(['provider_session_id' => $checkout['id']]);
-                $link->order?->update(['provider_session_id' => $checkout['id']]);
-            } else {
-                $link->update(['provider_session_id' => $checkout['id']]); // add column if you want
+                /** @var PaymentLink $link */
+                $link = PaymentLink::with(['order.brand', 'lead', 'brand'])
+                    ->where('token', $token)
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                if (! $link->isActiveLink()) {
+                    return ['type' => 'inactive', 'link' => $link];
+                }
+
+                $brand = $link->brand ?? $link->order?->brand;
+                if (! $brand) {
+                    throw new \RuntimeException('Missing brand information for payment link.');
+                }
+
+                // Provider must be set and valid
+                $provider = strtolower((string) $link->provider);
+                if (! in_array($provider, ['stripe', 'paypal'], true)) {
+                    throw new \InvalidArgumentException('Unsupported or missing payment provider.');
+                }
+
+                // Optional: reuse existing live session if already created (prevents multiple sessions)
+                if ($link->provider_session_id && $link->last_issued_url) {
+                    // If you store checkout URL, you can reuse it. Otherwise remove this block.
+                    // return ['type' => 'redirect', 'url' => $link->last_issued_url];
+                }
+
+                $gateway = $factory->forProviderWithBrand($provider, $brand);
+
+                // Create checkout session at provider
+                $checkout = $gateway->createCheckout($link, $buyer); // ['id' => ..., 'url' => ...]
+                if (empty($checkout['url'])) {
+                    throw new \RuntimeException('Gateway did not return a checkout URL.');
+                }
+
+                // Persist provider session id
+                if (!empty($checkout['id'])) {
+                    $link->provider_session_id = $checkout['id'];
+                    $link->save();
+
+                    if ($link->provider === 'stripe') {
+                        $link->order?->update(['provider_session_id' => $checkout['id']]);
+                    }
+                }
+
+                return ['type' => 'redirect', 'url' => $checkout['url']];
+            });
+
+            if ($result['type'] === 'inactive') {
+                return response()->view('errors.payLink-error', [
+                    'message' => 'This payment link is not active.'
+                ], 410);
             }
-        }
 
-        return redirect()->away($checkout['url']);
-        // $session = $stripe->createCheckout($link, $buyer);
-        // return redirect()->away($session['url']);
+            return redirect()->away($result['url']);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->view('errors.payLink-error', [
+                'message' => 'Payment link not found.'
+            ], 404);
+        } catch (\Stripe\Exception\ApiErrorException $e) {
+            // Stripe-specific failures
+            Log::error('Stripe createCheckout failed', [
+                'token' => $token,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->view('errors.payLink-error', [
+                'message' => 'Payment provider is temporarily unavailable. Please try again.'
+            ], 502);
+        } catch (\Throwable $e) {
+            Log::error('createCheckout failed', [
+                'token' => $token,
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->view('errors.payLink-error', [
+                'message' => 'Unable to start checkout right now. Please try again.'
+            ], 500);
+        }
     }
+    
+    // public function createCheckout(Request $request, string $token, PaymentGatewayFactory $factory)
+    // {
+    //     $link = PaymentLink::with(['order', 'lead'])->where('token', $token)->firstOrFail();
+    //     if (! $link->isActiveLink()) {
+    //         return response()->view('errors.payLink-error', [
+    //             'message' => 'This payment link is not active.'
+    //         ], 410);
+    //         // abort(410, 'This payment link is not active.');
+    //     }
+
+    //     $buyer = $request->validate([
+    //         'first_name' => ['nullable', 'string', 'max:255'],
+    //         'last_name'  => ['nullable', 'string', 'max:255'],
+    //         'email'      => ['required', 'email', 'max:255'],
+    //         'phone'      => ['nullable', 'string', 'max:30'],
+    //         'address'    => ['nullable', 'string', 'max:255'],
+    //         // 'city'       => ['nullable', 'string', 'max:255'],
+    //         // 'state'      => ['nullable', 'string', 'max:255'],
+    //         // 'zip'        => ['nullable', 'string', 'max:30'],
+    //         // 'country'    => ['nullable', 'string', 'max:255'],
+    //     ]);
+    //     // dd($request->all(), $link);
+
+    //     $brand = $link->brand ?? $link->order->brand ?? null;
+    //     abort_if(!$brand, 500, 'Missing brand information.');
+
+    //     // ✅ Load the keys from DB
+    //     $keys = AccountKey::where('brand_id', $brand->id)
+    //         ->where('status', 'active')
+    //         ->first();
+    //     // dd($keys);
+    //     if (!$keys) {
+    //         return response()->json(['error' => 'Stripe or PayPal keys are missing for this brand'], 500);
+    //     }
+    //     // ✅ Optional: log or preview keys
+    //     Log::info('Stripe and PayPal keys loaded for brand', [
+    //         'brand_id' => $brand->id,
+    //         'stripe_key' => substr($keys->stripe_secret_key, 0, 6) . '****',
+    //         'paypal_secret' => substr($keys->paypal_secret, 0, 6) . '****'
+    //     ]);
+    //     $gateway = $factory->forProviderWithBrand($link->provider, $brand);   // 'stripe' or 'paypal'
+    //     $checkout = $gateway->createCheckout($link, $buyer); // returns ['id'=>..., 'url'=>...]
+    //     // dd($gateway,$checkout);
+    //     // (optional) persist gateway session ID if you want:
+    //     if (!empty($checkout['id'])) {
+    //         if ($link->provider === 'stripe') {
+    //             $link->update(['provider_session_id' => $checkout['id']]);
+    //             $link->order?->update(['provider_session_id' => $checkout['id']]);
+    //         } else {
+    //             $link->update(['provider_session_id' => $checkout['id']]); // add column if you want
+    //         }
+    //     }
+
+    //     return redirect()->away($checkout['url']);
+    //     // $session = $stripe->createCheckout($link, $buyer);
+    //     // return redirect()->away($session['url']);
+    // }
 
     public function checkoutSuccess(Request $request, string $token, PaymentGatewayFactory $factory)
     {

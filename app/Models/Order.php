@@ -72,49 +72,33 @@ class Order extends Model
                 $o->status = 'draft';
             }
         });
-
-        static::created(function ($order) {
-            // Create brief
-            $brief = Questionnair::create([
-                'client_id' => $order->client_id,
-                'order_id'  => $order->id,
-                'service_name' => $order->service_name,
-                'meta' => [],
-                'status' => 'pending',
-                'brief_token' => \Illuminate\Support\Str::uuid(),
-                'brief_token_expires_at' => now()->addDays(14),
-            ]);
-            // Load client + brand
-            $client = $order->client;
-            $brandName = $order->brand->brand_name ?? 'N/A';
-            // Brief URL
-            $briefUrl = route('brief.show', ['token' => $brief->brief_token]);
-            // Send email
-            if ($client) {
-                $client->notify(new \App\Notifications\SendBriefLinkMail(
-                    $client,
-                    $order,
-                    $brandName,
-                    $briefUrl
-                ));
-            }
-        });
+        // static::created(function ($order) {
+        //     // Create brief
+        //     $brief = Questionnair::create([
+        //         'client_id' => $order->client_id,
+        //         'order_id'  => $order->id,
+        //         'service_name' => $order->service_name,
+        //         'meta' => [],
+        //         'status' => 'pending',
+        //         'brief_token' => \Illuminate\Support\Str::uuid(),
+        //         'brief_token_expires_at' => now()->addDays(14),
+        //     ]);
+        //     // Load client + brand
+        //     $client = $order->client;
+        //     $brandName = $order->brand->brand_name ?? 'N/A';
+        //     // Brief URL
+        //     $briefUrl = route('brief.show', ['token' => $brief->brief_token]);
+        //     // Send email
+        //     if ($client) {
+        //         $client->notify(new \App\Notifications\SendBriefLinkMail(
+        //             $client,
+        //             $order,
+        //             $brandName,
+        //             $briefUrl
+        //         ));
+        //     }
+        // });
     }
-
-    // protected static function booted()
-    // {
-    //     static::saving(function (Order $o) {
-    //         $o->balance_due = max(0, (int)$o->unit_amount - (int)$o->amount_paid);
-    //         if ($o->balance_due === 0 && $o->unit_amount > 0) {
-    //             $o->status  = 'paid';
-    //             $o->paid_at = $o->paid_at ?? now();
-    //         } elseif ($o->amount_paid > 0 && $o->status !== 'paid') {
-    //             $o->status = 'pending';
-    //         } elseif ($o->status !== 'canceled') {
-    //             $o->status = 'draft';
-    //         }
-    //     });
-    // }
 
     public function scopeForSeller($q, Seller $seller)
     {
@@ -129,7 +113,7 @@ class Order extends Model
 
     public function brief()
     {
-        return $this->hasOne(Questionnair::class, 'order_id');
+        return $this->hasOne(Questionnair::class, 'order_id', 'id');
     }
 
     public function tickets()

@@ -53,7 +53,7 @@
     </script>
 
     @php
-        // prefer Payment row, else fall back to link columns
+        // Prefer Payment row, else fall back to link columns
         $paidAt = $link->paid_at ?? optional($order?->paid_at);
         $txnId = $latest->provider_payment_intent_id ?? $link->provider_payment_intent_id;
         $provider = $latest->provider ?? (str_contains($txnId ?? '', 'pi_') ? 'stripe' : 'paypal');
@@ -62,10 +62,13 @@
         $brandUrl = trim((string) ($brand->brand_url ?? ($order?->brand?->brand_url ?? '')));
         $brandUrl = $brandUrl ? (str_starts_with($brandUrl, 'http') ? $brandUrl : 'https://' . $brandUrl) : null;
         $host = $brandUrl ? parse_url($brandUrl, PHP_URL_HOST) : null;
+
         // Prefer direct favicon (often works better than google)
-        $brandIcon = $host ? "https://{$host}/favicon.ico" : asset('admin-assets/dpm-logos/4.png');
+        $brandIcon = $host ? "https://{$host}/favicon.ico" : null;
         $googleFavicon = $host ? "https://www.google.com/s2/favicons?sz=128&domain={$host}" : null;
     @endphp
+
+    <!-- Brand Icon with fallback -->
 
 
     <div class="container-fluid d-flex justify-content-center align-items-center min-vh-100 bg-light form-wrapper">
@@ -76,7 +79,7 @@
                     {{-- Success Icon --}}
                     <div class="mb-4">
                         <div class="rounded-circle d-inline-flex justify-content-center align-items-center">
-                            <img src="{{ $googleFavicon }}"
+                            <img src="{{ $googleFavicon ?? ($brandIcon ?? asset('admin-assets/dpm-logos/4.png')) }}"
                                 onerror="this.onerror=null;this.src='{{ asset('admin-assets/dpm-logos/4.png') }}';"
                                 alt="Brand" style="width: 90px; height: 90px; object-fit: contain;">
                         </div>
@@ -109,7 +112,7 @@
                             </div>
                         </div>
                     </div>
-                    <a href="{{ route('index.get') }}" class="btn btn-sm rounded-3 px-4"
+                    <a href="{{ $brandUrl }}" class="btn btn-sm rounded-3 px-4"
                         style="background: linear-gradient(0deg, #000000, #ff0000f7);color: white !important;">
                         <i class="fas fa-home mr-2"></i> Visit Us
                     </a>

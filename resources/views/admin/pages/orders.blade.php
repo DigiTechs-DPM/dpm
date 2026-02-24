@@ -172,7 +172,7 @@
                                                 </button>
                                             @endif
                                         @else
-                                            <a href="javascript:void(0);" class="badge badge-danger btn-sm togglePaylink"
+                                            <a href="javascript:void(0);" class="badge badge-danger btn-sm"
                                                 data-toggle="tooltip" data-id="{{ $order->latestPaymentLink->id }}"
                                                 data-status="true">
                                                 Inactive
