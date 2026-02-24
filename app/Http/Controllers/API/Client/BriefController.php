@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Questionnair;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -32,7 +30,8 @@ class BriefController extends Controller
 
     public function showBriefForm(string $token)
     {
-        $brief = Questionnair::where('brief_token', $token)
+        $brief = Questionnair::query()
+            ->where('brief_token', $token)
             ->where(function ($q) {
                 $q->whereNull('brief_token_expires_at')
                     ->orWhere('brief_token_expires_at', '>', now());
@@ -40,40 +39,35 @@ class BriefController extends Controller
             ->with(['order:id,client_id,service_name,brand_id'])
             ->firstOrFail();
 
-        // must login as client
-        if (!auth('client')->check()) {
-            session(['redirect_to_brief' => route('brief.show', ['token' => $token])]);
-            return redirect()->route('client.login.get')
-                ->with('error', 'Please login first to fill the brief.');
+        // If client is logged in, ensure they own it (extra protection)
+        if (auth('client')->check()) {
+            abort_unless((int)$brief->client_id === (int)auth('client')->id(), 403, 'Unauthorized brief access.');
         }
-
-        $clientId = auth('client')->id();
-
-        // ownership check
-        abort_unless((int)$brief->client_id === (int)$clientId, 403, 'Unauthorized brief access.');
 
         return view('clients.pages.brief-token', [
             'order'        => $brief->order,
             'brief'        => $brief->meta ?? [],
             'questionnair' => $brief,
             'token'        => $token,
+            'mode'         => 'token',
         ]);
     }
 
     public function submit(Request $request, string $token)
     {
-        $brief = Questionnair::where('brief_token', $token)
+        $brief = Questionnair::query()
+            ->where('brief_token', $token)
             ->where(function ($q) {
                 $q->whereNull('brief_token_expires_at')
                     ->orWhere('brief_token_expires_at', '>', now());
             })
-            ->with('order:id,client_id,service_name')
+            ->with('order:id,client_id')
             ->firstOrFail();
 
-        abort_unless(auth('client')->check(), 403, 'Login required.');
-        abort_unless((int)$brief->client_id === (int)auth('client')->id(), 403, 'Unauthorized.');
+        if (auth('client')->check()) {
+            abort_unless((int)$brief->client_id === (int)auth('client')->id(), 403, 'Unauthorized brief access.');
+        }
 
-        // ✅ validate structure (adapt to your form fields)
         $validated = $request->validate([
             'query' => ['required', 'array'],
             'attachments.*' => ['nullable', 'file', 'mimes:jpg,jpeg,png,pdf,doc,docx,zip', 'max:10240'],
@@ -81,12 +75,9 @@ class BriefController extends Controller
             'remove_attachments.*' => ['string'],
         ]);
 
-        // reuse same save logic as portal
         $this->saveBriefMetaAndFiles($brief, $validated, $request);
 
-        // mark complete
         $brief->status = 'completed';
-        $brief->completed_at = now(); // add column if you want
         $brief->save();
 
         return back()->with('success', 'Your brief was submitted successfully!');

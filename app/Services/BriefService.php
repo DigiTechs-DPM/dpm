@@ -24,7 +24,7 @@ class BriefService
         if ($order->order_type !== 'original') return;
 
         // prevent duplicates
-        if ($order->brief_sent_at) return;
+        // if ($order->brief_sent_at) return;
 
         // create or reuse questionnaire
         $brief = Questionnair::firstOrCreate(
@@ -46,7 +46,7 @@ class BriefService
             $brief->save();
         }
 
-        $briefUrl  = route('client.brief.get', ['token' => $brief->brief_token]);
+        $briefUrl  = route('brief.show', ['token' => $brief->brief_token]);
         $brandName = $order->brand->brand_name ?? config('app.name');
 
         try {
@@ -57,7 +57,7 @@ class BriefService
                 $briefUrl
             ));
 
-            $order->brief_sent_at = now();
+            // $order->brief_sent_at = now();
             $order->save();
         } catch (\Throwable $e) {
             Log::error('Failed to send brief link mail', [

@@ -11,6 +11,11 @@ class Questionnair extends Model
 {
     use Notifiable;
 
+    protected $casts = [
+        'meta' => 'array',
+        'brief_token_expires_at' => 'datetime',
+    ];
+
     protected $fillable = [
         'client_id',
         'order_id',
@@ -29,12 +34,6 @@ class Questionnair extends Model
             $q->brief_token_expires_at = now()->addDays(14);
         });
     }
-
-
-    protected $casts = [
-        'meta' => 'array',
-        'brief_token_expires_at' => 'datetime',
-    ];
 
     // 🔹 Relationship with Client
     public function client()

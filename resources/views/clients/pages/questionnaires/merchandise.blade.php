@@ -1,13 +1,20 @@
 @php
-    $meta = $brief?->meta ?? [];
-    $answers = isset($meta['query']) && is_array($meta['query']) ? $meta['query'] : $meta; // ✅ normalize
+    // $brief is meta array, $questionnair is model
+    $meta = is_array($brief ?? null) ? $brief : $questionnair->meta ?? [];
+    $answers = isset($meta['query']) && is_array($meta['query']) ? $meta['query'] : $meta;
 @endphp
 
-<form class="col-md-12 brief-form p-0" method="POST" action="{{ route('client.brief-form.post') }}"
+<form class="col-md-12 brief-form p-0" method="POST"
+    action="{{ ($mode ?? 'dashboard') === 'token'
+        ? route('brief.submit', ['token' => $token])
+        : route('client.brief-form.post') }}"
     enctype="multipart/form-data">
     @csrf
 
-    <input type="hidden" name="order_id" value="{{ $order->id }}">
+    {{-- dashboard needs order_id --}}
+    @if (($mode ?? 'dashboard') !== 'token')
+        <input type="hidden" name="order_id" value="{{ $order->id }}">
+    @endif
 
     <div class="card mb-4">
         <div class="card-body mb-4">

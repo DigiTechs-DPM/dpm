@@ -330,7 +330,9 @@ class StripeGateway implements PaymentGateway
             }
 
             DB::afterCommit(function () use ($order) {
-                app(\App\Services\BriefService::class)->dispatchBriefEmail($order->id);
+                if ($order->order_type === 'original' && (int)$order->balance_due === 0) {
+                    app(\App\Services\BriefService::class)->dispatchBriefEmail($order->id);
+                }
             });
 
             return [$payment, $order];
