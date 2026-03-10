@@ -8,7 +8,6 @@ use App\Models\Brand;
 use App\Models\Order;
 use App\Models\Client;
 use App\Models\Seller;
-use App\Models\Company;
 use App\Models\Payment;
 use App\Models\AccountKey;
 use App\Models\RiskyClient;
@@ -103,6 +102,16 @@ class ViewsController extends Controller
         }
 
 
+        // --- Upwork payments (using upwork_payment_links grouped per order) ---
+        $upworkOrderPayments = DB::table('upwork_payment_links')
+            ->select('order_id')
+            ->selectRaw('MAX(order_total_snapshot) as snapshot')
+            ->selectRaw('SUM(CASE WHEN status = "paid" THEN unit_amount ELSE 0 END) as paid')
+            ->groupBy('order_id')
+            ->get();
+        $upworkPaymentPaidAmount  = $upworkOrderPayments->sum('paid');
+        $upworkTotalOrderSnapshot = $upworkOrderPayments->sum('snapshot');
+        $upworkPaymentDueAmount   = $upworkTotalOrderSnapshot - $upworkPaymentPaidAmount;
 
         return view('admin.pages.index', [
             'leads'        => $leads,
@@ -115,7 +124,12 @@ class ViewsController extends Controller
             'revenue'      => $revenue,
             'paymentPaid'  => $paymentPaidAmount,
             'paymentDue'   => $paymentDueAmount,
-            'logs' => $logs
+            'logs' => $logs,
+            // upwork payments
+            'upworkPaymentPaid' => $upworkPaymentPaidAmount,
+            'upworkPaymentDue'  => $upworkPaymentDueAmount,
+            'upworkRevenue'     => $upworkPaymentPaidAmount,
+            'upworkSnapshot'    => $upworkTotalOrderSnapshot,
         ]);
     }
 

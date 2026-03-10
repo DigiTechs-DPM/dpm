@@ -38,7 +38,7 @@
             <div class="tab-content tab-transparent-content">
                 <div class="tab-pane fade show active" id="business-1" role="tabpanel" aria-labelledby="business-tab">
                     <div class="row">
-                        <div class="col-xl-3 col-lg-3 col-sm-3 grid-margin stretch-card">
+                        <div class="col-xl-3 col-lg-3 col-sm-3 grid-margin stretch-card" hidden>
                             <div class="card ">
                                 <a href="javascript:void(0);" style="text-decoration:none;">
                                     <div class="card-body">
@@ -61,16 +61,11 @@
                                 </a>
                             </div>
                         </div>
-                        <div class="col-xl-6 col-lg-6 col-sm-6 grid-margin stretch-card">
-                            <div class="card">
-                                <canvas id="orderPaymentsChart"></canvas>
-                            </div>
-                        </div>
                         <div class="col-xl-3 col-lg-6 col-sm-6 grid-margin stretch-card">
                             <div class="card">
                                 <a href="{{ route('admin.brand-payments.get') }}" style="text-decoration:none;">
                                     <div class="card-body text-center">
-                                        <h5 class="mb-2 text-danger font-weight-normal py-2">Revenue</h5>
+                                        <h5 class="mb-2 text-danger font-weight-normal py-2">PPC Revenue</h5>
                                         <div
                                             class="dashboard-progress dashboard-progress-3 d-flex align-items-center justify-content-center item-parent my-5 ">
                                             <img src="https://cdn-icons-png.flaticon.com/128/5412/5412646.png"
@@ -80,6 +75,32 @@
                                             <div class="my-3">
                                                 <h6 class="text-muted">Paid : {{ money_cents($paymentPaid ?? 0) }}</h6>
                                                 <h6 class="text-sm text-muted">Dues : {{ money_cents($paymentDue ?? 0) }}
+                                                </h6>
+                                            </div>
+                                        </h2>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-xl-6 col-lg-6 col-sm-6 grid-margin stretch-card">
+                            <div class="card">
+                                <canvas id="orderPaymentsChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-xl-3 col-lg-6 col-sm-6 grid-margin stretch-card">
+                            <div class="card">
+                                <a href="javascript:void(0);" style="text-decoration:none;">
+                                    <div class="card-body text-center">
+                                        <h5 class="mb-2 text-danger font-weight-normal py-2"> Upwork Revenue</h5>
+                                        <div
+                                            class="dashboard-progress dashboard-progress-3 d-flex align-items-center justify-content-center item-parent my-5 ">
+                                            <img src="https://cdn-icons-png.flaticon.com/128/5412/5412646.png"
+                                                alt="" style="width: 60px;">
+                                        </div>
+                                        <h2 class="mb-4 text-danger font-weight-bold  ">{{ money_cents($upworkRevenue ?? 0) }}
+                                            <div class="my-3">
+                                                <h6 class="text-muted">Paid : {{ money_cents($upworkPaymentPaid ?? 0) }}</h6>
+                                                <h6 class="text-sm text-muted">Dues : {{ money_cents($upworkPaymentDue ?? 0) }}
                                                 </h6>
                                             </div>
                                         </h2>

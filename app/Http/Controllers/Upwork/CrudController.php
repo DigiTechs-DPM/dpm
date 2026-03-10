@@ -6,9 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Upwork\UpworkClient;
 use App\Models\Upwork\UpworkOrder;
 use App\Models\Upwork\UpworkPaymentLink;
-use App\Notifications\SendClientAccountCRMLink;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Notification;
 
 class CrudController extends Controller
 {
