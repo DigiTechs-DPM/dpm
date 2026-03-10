@@ -2,10 +2,7 @@
 
 namespace App\Http\Controllers\Upwork;
 
-use App\Models\Admin;
 use App\Models\Brand;
-use App\Models\Client;
-use App\Models\AccountKey;
 use Illuminate\Http\Request;
 use App\Models\Upwork\UpworkOrder;
 use Illuminate\Support\Facades\DB;
@@ -18,19 +15,10 @@ class ViewsController extends Controller
 {
     public function upworkDashboard()
     {
-        $admin = auth('admin')->user();
-
         // Stats for Upwork orders and payments
-        $brands = Brand::count(); // Count of brands (since Upwork uses brands)
+        $brands = Brand::where('module', 'upwork')->count(); // Count of brands (since Upwork uses brands)
         $orders = UpworkOrder::count(); // Use UpworkOrder table
         $payments = UpworkPayment::count(); // Use UpworkPayment table to count actual payments
-
-        // Active users in last 5 minutes
-        $now = now()->subMinutes(5);
-        $users = Client::where('last_seen', '>=', $now)->get(); // Active clients
-        $admins = Admin::where('last_seen', '>=', $now)->get(); // Active admins
-        $allOnline = collect()->merge($users)->merge($admins);
-
         // --- Revenue Calculation ---
         // Fetch Upwork orders and their total income (only for paid orders)
         $data = DB::table('upwork_orders') // Use the UpworkOrder table
@@ -92,7 +80,6 @@ class ViewsController extends Controller
             'orders' => $orders,
             'brands' => $brands,
             'payments' => $payments,
-            'activeMembers' => $allOnline,
             'months' => $months,
             'totals' => $totals,
             'revenue' => $revenue,

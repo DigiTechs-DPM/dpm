@@ -22,9 +22,7 @@ class BriefController extends Controller
             ->where('order_type', 'original')
             ->paginate(20)
             ->withQueryString();
-
         // dd($orders);
-
         return view('clients.pages.briefs', compact('orders'));
     }
 

@@ -127,7 +127,7 @@
                 <div class="form-group col-md-6">
                     <label>Expires in (hours)</label>
                     <input type="number" class="form-control" name="expires_in_hours" min="1" max="720"
-                        value="{{ old('expires_in_hours', 168) }}">
+                        value="{{ old('expires_in_hours', 24) }}">
                 </div>
 
                 <div class="form-group col-md-6">

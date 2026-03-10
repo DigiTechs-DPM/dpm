@@ -101,43 +101,11 @@
             <!-- Order Details Section -->
             <div class="form-row">
                 <div class="form-group col-md-6">
-                    <label>Service</label>
-                    <select name="service" required class="form-control" id="service">
-                        <option value="" disabled selected>-- select a service --</option>
-                        <option value="Logo Design">Logo Design</option>
-                        <option value="Logo Animation">Logo Animation</option>
-                        <option value="Video Animation">Video Animation</option>
-                        <option value="Content Development">Content Development</option>
-                        <option value="Website Design & Development">Website Design & Development</option>
-                        <option value="Search Engine Optimization">Search Engine Optimization</option>
-                        <option value="Social Media Marketing">Social Media Marketing</option>
-                        <option value="Merchandise">Merchandise</option>
-                        <option value="Packaging & Labels">Packaging & Labels</option>
-                        <option value="Marketing Collateral">Marketing Collateral</option>
-                        <option value="Domain & Hosting">Domain & Hosting</option>
-                        <option value="Online Reputation Management">Online Reputation Management</option>
-                        <option value="Ebook Design & Formatting Brief">Ebook Design & Formatting Brief</option>
-                    </select>
+                    <label>Service Name</label>
+                    <input type="text" class="form-control" id="service" name="service"
+                        placeholder="e.g. Web Development">
                 </div>
-                <div class="form-group col-md-6">
-                    <label>Currency</label>
-                    <input type="text" class="form-control" name="currency" value="USD"
-                        placeholder="Enter currency (e.g., USD)" required readonly>
-                </div>
-                <div class="form-group col-md-6">
-                    <label>Unit Amount (Price)</label>
-                    <input type="number" class="form-control" name="unit_amount" placeholder="Enter price (e.g., 4000.00)"
-                        required>
-                </div>
-                <div class="form-group col-md-6">
-                    <label>Payment Amount</label>
-                    <input type="number" class="form-control" name="payable_amount"
-                        placeholder="Enter amount to pay now (e.g., 2000.00)" required>
-                </div>
-            </div>
-            <hr>
-            <!-- Seller Selection Section -->
-            <div class="form-row">
+                <!-- Seller Selection Section -->
                 <div class="form-group col-md-6">
                     <label>Choose Sell</label>
                     <select name="sell_type" class="form-control" required>
@@ -156,19 +124,49 @@
                         @endforeach
                     </select>
                 </div>
-            </div>
-            <!-- Payment Provider Section -->
-            <div class="form-row">
-                <div class="form-group col-md-12">
-                    <label>Payment Provider</label>
-                    <select name="provider" class="form-control" required>
-                        <option value="stripe" selected>Stripe</option>
-                    </select>
+                <div class="form-group col-md-6">
+                    <label>Currency</label>
+                    <input type="text" class="form-control" name="currency" value="USD"
+                        placeholder="Enter currency (e.g., USD)" required readonly>
+                </div>
+                <div class="form-group col-md-6">
+                    <label>Unit Amount (Price)</label>
+                    <input type="number" class="form-control" name="unit_amount" placeholder="Enter price (e.g., 4000.00)"
+                        required>
+                </div>
+                <div class="form-group col-md-6">
+                    <label>Payment Amount</label>
+                    <input type="number" class="form-control" name="payable_amount"
+                        placeholder="Enter amount to pay now (e.g., 2000.00)" required>
                 </div>
             </div>
 
-            <!-- Expiry and Final Section -->
-            <div class="form-row" hidden>
+            <script>
+                document.getElementById("service").addEventListener("input", function() {
+
+                    let value = this.value;
+
+                    // add space before capital letters
+                    value = value.replace(/([a-z])([A-Z])/g, '$1 $2');
+
+                    // capitalize first letter of each word
+                    value = value.replace(/\b\w/g, function(letter) {
+                        return letter.toUpperCase();
+                    });
+
+                    this.value = value;
+
+                });
+            </script>
+
+            <hr>
+            <div class="form-row">
+                <div class="form-group col-md-6">
+                    <label>Provider</label>
+                    <input type="text" class="form-control" name="provider" value="stripe" readonly required>
+                </div>
+
+                <!-- Expiry and Final Section -->
                 <div class="form-group col-md-6">
                     <label>Expires in (hours)</label>
                     <input type="number" class="form-control" name="expires_in_hours" min="1" max="3"

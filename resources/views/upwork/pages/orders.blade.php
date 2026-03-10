@@ -10,13 +10,6 @@
                 <div class="heading d-flex justify-content-between">
                     <div>
                         <h1 class="fw-bold" style="color: #003C51;">Orders</h1>
-                        <!-- It display CSV for both admin and white wolf -->
-                        <a href="{{ route('export.csv', ['table' => 'orders', 'columns' => 'id,order_type,service_name,currency,unit_amount,amount_paid,balance_due,status,buyer_name,buyer_email,provider_session_id,provider_payment_intent_id,paid_at']) }}"
-                            style="text-decoration: none;">
-                            <button class="btn btn-sm bg-gradient-3" type="button">
-                                <i class="fa fa-file-excel-o"></i> CSV
-                            </button>
-                        </a>
                     </div>
                     <div class="examplesearch-form mx-3">
                         <form action="" method="" class="example">

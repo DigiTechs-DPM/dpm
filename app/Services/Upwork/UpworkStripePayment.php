@@ -3,10 +3,7 @@
 namespace App\Services\Upwork;
 
 use App\Models\AccountKey;
-use App\Models\Upwork\UpworkOrder;
-use App\Models\Upwork\UpworkPayment;
 use App\Models\Upwork\UpworkPaymentLink;
-use App\Notifications\InitialPaymentNotification;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
@@ -39,8 +36,8 @@ class UpworkStripePayment implements UpworkPaymentGateway
             throw new \RuntimeException('Payment link missing order.');
         }
 
-        $successUrl = route('paylinks.success', $link->token) . '?session_id={CHECKOUT_SESSION_ID}';
-        $cancelUrl  = route('paylinks.cancel', $link->token) . '?canceled=1';
+        $successUrl = route('upwork.paylinks.success', $link->token) . '?session_id={CHECKOUT_SESSION_ID}';
+        $cancelUrl  = route('upwork.paylinks.cancel', $link->token) . '?canceled=1';
 
         $session = Session::create([
             'mode'        => 'payment',

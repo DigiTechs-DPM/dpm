@@ -101,7 +101,7 @@
             <div class="mb-3 text-muted small">{{ $orderLabel }}</div>
         @endif
 
-        <form method="POST" action="{{ route('paylinks.checkout', $token) }}" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('upwork.paylinks.checkout', $token) }}" enctype="multipart/form-data">
             @csrf
             <div class="form-row">
                 <div class="form-group col-md-12">

@@ -82,22 +82,7 @@
                                 </a>
                             </div>
                         </div>
-                        <div class="col-xl-3  col-lg-6 col-sm-6 grid-margin stretch-card">
-                            <div class="card">
-                                <a href="javascript:void(0);" style="text-decoration:none;">
-                                    <div class="card-body text-center">
-                                        <h5 class="mb-2 text-danger font-weight-normal py-2">Leads</h5>
-                                        <div
-                                            class="dashboard-progress dashboard-progress-3 d-flex align-items-center justify-content-center item-parent my-5 ">
-                                            <img src="https://cdn-icons-png.flaticon.com/128/2275/2275248.png"
-                                                alt="" style="width: 60px;">
-                                        </div>
-                                        <h2 class="mb-4 text-danger font-weight-bold">{{ $leads ?? 0 }}</h2>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-xl-3 col-lg-6 col-sm-6 grid-margin stretch-card">
+                        <div class="col-xl-6 col-lg-6 col-sm-6 grid-margin stretch-card">
                             <div class="card">
                                 <a href="javascript:void(0);" style="text-decoration:none;">
                                     <div class="card-body text-center">

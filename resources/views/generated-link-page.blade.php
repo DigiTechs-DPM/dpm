@@ -110,11 +110,6 @@
                 </div>
             </div>
 
-            {{-- <div class="stripe-card-element">
-                <div id="card-element" class="form-control"></div>
-                <div id="card-errors" role="alert" class="text-danger mt-2"></div>
-            </div> --}}
-
             <div class="section-header mb-3">PAYER DETAILS</div>
             <div class="form-row">
                 <div class="form-group col-md-6">
@@ -137,27 +132,7 @@
                         placeholder="Phone" readonly>
                 </div>
             </div>
-
-            {{-- <div class="section-header mb-3">BILLING DETAILS (optional)</div>
-            <input type="text" name="address" class="form-control mb-2" placeholder="Address">
-            <div class="form-row">
-                <div class="form-group col-md-6">
-                    <input type="text" name="city" class="form-control" placeholder="City">
-                </div>
-                <div class="form-group col-md-6">
-                    <input type="text" name="state" class="form-control" placeholder="State/Province">
-                </div>
-            </div>
-            <div class="form-row">
-                <div class="form-group col-md-6">
-                    <input type="text" name="zip" class="form-control" placeholder="Zip/Postal Code">
-                </div>
-                <div class="form-group col-md-6">
-                    <input type="text" name="country" class="form-control" placeholder="Country (ISO-2, e.g., US)">
-                </div>
-            </div> --}}
             <hr>
-            {{-- No card inputs here. Stripe hosts the payment form. --}}
             <div class="text-center">
                 <button type="submit" class="btn btn-submit">
                     @if ($link->provider === 'paypal')
@@ -173,7 +148,6 @@
         <script>
             const img = document.getElementById('brandLogo');
             const colorThief = new ColorThief();
-
             img.onload = () => {
                 const color = colorThief.getColor(img);
                 console.log("Dominant color:", color); // [R,G,B]
