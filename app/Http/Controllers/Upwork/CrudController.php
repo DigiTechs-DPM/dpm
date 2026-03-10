@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\upwork;
 
-use Illuminate\Http\Request;
-use App\Models\Upwork\UpworkClient;
 use App\Http\Controllers\Controller;
+use App\Models\Upwork\UpworkClient;
+use App\Models\Upwork\UpworkOrder;
 use App\Models\Upwork\UpworkPaymentLink;
-use Illuminate\Support\Facades\Notification;
 use App\Notifications\SendClientAccountCRMLink;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 
 class CrudController extends Controller
 {
@@ -87,5 +88,15 @@ class CrudController extends Controller
             'message' => "Payment link updated successfully.",
             'active'  => $isActive
         ]);
+    }
+
+    public function deleteOrder($id)
+    {
+        $order = UpworkOrder::find($id);
+        if (!$order) {
+            return redirect()->back()->with('error', 'Order not found');
+        }
+        $order->delete();
+        return redirect()->back()->with('success', 'Order Deleted Successfully!');
     }
 }

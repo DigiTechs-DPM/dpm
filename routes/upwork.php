@@ -38,6 +38,8 @@ Route::group(['prefix' => 'upwork'], function () {
         // client orders and renew oders
         Route::get('/orders', [OrdersController::class, 'upworkOrders'])->name('upwork.orders.get');
         Route::get('/payments', [OrdersController::class, 'upworkPayments'])->name('upwork.payments.get');
+        Route::match(['get', 'post'], '/order/{id?}/delete', [CrudController::class, 'deleteOrder'])
+            ->name('admin.delete.order');
 
         // // generate link for renewal order
         // Route::get('/link-generator', [OrdersController::class, 'upworklinkGenerator'])->name('upwork.link-generator.get');

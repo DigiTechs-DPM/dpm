@@ -115,7 +115,12 @@
                                     {{-- Actions --}}
                                     <td class="text-end">
                                         <a href="{{ route('upwork.order.generate-invoice', $order) }}">
-                                            <button type="button" class="badge btn-sm btn-outline-danger">Invoice</button>
+                                            <button type="button" class="badge btn-sm btn-outline-info">Invoice</button>
+                                        </a>
+                                        <a href="{{ route('admin.delete.order', $order->id) }}"
+                                            onclick="return confirm('Are you sure you want to delete this order?')"
+                                            class="badge badge-outline-danger">
+                                            <i class="fa fa-trash"></i>
                                         </a>
                                     </td>
 

@@ -63,7 +63,7 @@
                                     <td>{{ $client->phone }}</td>
                                     <td>{{ $client->created_at->format('Y-m-d') }}</td>
                                     <td>
-                                        <a href="javascript:void(0);" class="badge btn-sm deleteUser" hidden
+                                        <a href="javascript:void(0);" class="badge btn-sm deleteUser"
                                             data-id="{{ $client->id }}" title="Delete">
                                             <i class="fa fa-trash text-danger" style="font-size: 20px;"></i>
                                         </a>
